@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+java -jar lib/antlr.jar -o src/ grammar/Peephole.g
