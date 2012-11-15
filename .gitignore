@@ -1,3 +1,7 @@
 # ignoring emacs temporary files
 *~
 \#*\#
+
+# ignore ANTLR grammar output
+src/grammar
+*.tokens
