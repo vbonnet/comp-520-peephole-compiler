@@ -1,0 +1,34 @@
+int_oper = { iadd | isub | imul | idiv | irem }
+int_load = { ldc | iconst }
+
+RULE: fold_const/*_{%1}_{%2}_{%3}*/
+int_oper x
+int_load y
+int_oper
+-->
+switch (int_oper) {
+  iadd:
+    ldc (x + y)
+    ;
+  isub:
+    ldc (x - y)
+    ;
+  imul:
+    ldc (x * y)
+    ;
+  idiv:
+    ldc (x / y)
+    ;
+  irem:
+    ldc (x % y)
+    ;
+}
+
+RULE: pop
+dup
+[1] : x
+pop
+-->
+x
+
+
