@@ -2,10 +2,35 @@ grammar Peephole;
 
 options {
   language = Ruby;
-  output = AST;
+  output   = AST;
 }
 
-JASMIN_INSTR
+tokens {
+  EQUAL = '=';
+  PLUS  = '+';
+  MINUS = '-';
+  STAR  = '*';
+  SLASH = '/';
+  MOD   = '%';
+
+  L_PAREN   = '(';
+  R_PAREN   = ')';
+  L_BRACE   = '{';
+  R_BRACE   = '}';
+  L_BRACKET = '[';
+  R_BRACKET = ']';
+
+  BAR        = '|';
+  COLON      = ':';
+  SEMI_COLON = ';';
+
+  R_ARROW = '-->';
+
+  SWITCH = 'switch';
+  RULE   = 'RULE';
+}
+
+JASMIN_INSTRUCTION
   : 'new'
   | 'nop'           | 'i2c'
   | 'goto'
@@ -32,11 +57,10 @@ JASMIN_INSTR
   | 'invokevirtual' | 'invokenonvirtual'
   ;
 
-ID : ('_'|'a'..'z'|'A'..'Z')+;
+VARIABLE : ('_'|'a'..'z'|'A'..'Z')+;
 
 INT : '0'..'9'+;
 NEWLINE : '\r'? '\n' ;
-
 
 /*********************************
  *              SKIP             *
@@ -44,7 +68,6 @@ NEWLINE : '\r'? '\n' ;
 
 WHITESPACE        :  (' '|'\t')+                    { skip(); };
 MULTILINE_COMMENT :  '/*' (.)* '*/' { skip(); };
-
 
 /*********************************
  *             START             *
@@ -61,52 +84,53 @@ patterns
 /************ RULES **************/
 
 rule
-  : 'RULE:' name NEWLINE (named_declaration NEWLINE)+ '-->' NEWLINE (statement NEWLINE)*
+  : RULE COLON name NEWLINE
+    (named_declaration NEWLINE)+
+    R_ARROW NEWLINE
+    (statement NEWLINE)*
   ;
 
-name : ID ;
+name : VARIABLE ;
 
-named_declaration : declaration (':' ID)? ;
+named_declaration : declaration (COLON VARIABLE)? ;
 
 declaration
-  : (JASMIN_INSTR | ID) ID?
-  | '[' INT ']'
-  | '[' '...' ']'
+  : (JASMIN_INSTRUCTION | VARIABLE) VARIABLE?
+  | L_BRACKET INT R_BRACKET
+  | L_BRACKET STAR R_BRACKET
   | instruction_set
   ;
 
 statement
-  : ID
+  : VARIABLE
   | switch_statement
   | statement_no_switch
   ;
 
-statement_no_switch
-  : JASMIN_INSTR expression?
-  ;
+statement_no_switch : JASMIN_INSTRUCTION expression? ;
 
-switch_statement : 'switch' '(' ID ')' '{' NEWLINE case_statement+ '}';
-case_statement : JASMIN_INSTR ':' NEWLINE (statement_no_switch NEWLINE)* ';' NEWLINE;
+switch_statement
+  : SWITCH L_PAREN VARIABLE R_PAREN NEWLINE?
+    L_BRACE NEWLINE case_statement+ R_BRACE;
 
+case_statement
+  : JASMIN_INSTRUCTION COLON NEWLINE
+    (statement_no_switch NEWLINE)*
+    SEMI_COLON NEWLINE;
 
 /********** EXPRESSIONS **********/
 
-add : '+' | '-';
-expression : mult_expression (add mult_expression)*;
-
-mult : '*' | '/';
-mult_expression : rem_expression (mult rem_expression)*;
-
-remainder : '%';
-rem_expression : atomic_expression (remainder atomic_expression)*;
+expression : mult_expression ((PLUS | MINUS) mult_expression)*;
+mult_expression : rem_expression ((STAR | SLASH) rem_expression)*;
+rem_expression : atomic_expression (MOD atomic_expression)*;
 
 atomic_expression
   : INT
-  | ID
-  | '(' expression ')'
+  | VARIABLE
+  | L_PAREN expression R_PAREN
   ;
 
 /********* DECLARATIONS **********/
 
-assign : ID '=' instruction_set NEWLINE;
-instruction_set : '{' JASMIN_INSTR ('|' JASMIN_INSTR)* '}';
+assign : VARIABLE EQUAL instruction_set NEWLINE;
+instruction_set : L_BRACE JASMIN_INSTRUCTION (BAR JASMIN_INSTRUCTION)* R_BRACE;
