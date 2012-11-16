@@ -2,12 +2,15 @@ grammar Peephole;
 
 options {
   language = Ruby;
+  output = AST;
 }
 
 JASMIN_INSTR
   : 'return' | 'areturn' | 'ireturn'
   | 'iadd' | 'isub' | 'imul' | 'idiv' | 'irem'
   | 'ldc' | 'iconst'
+  | 'astore' | 'istore'
+  | 'dup' | 'pop'
   ;
 
 ID : ('_'|'a'..'z'|'A'..'Z')+;
@@ -28,31 +31,43 @@ MULTILINE_COMMENT :  '/*' (.)* '*/' { skip(); };
  *             START             *
  *********************************/
 
-patterns : rule+ | assign*;
+start : patterns+ EOF;
+
+patterns
+  : rule
+  | assign
+  | NEWLINE
+  ;
 
 /************ RULES **************/
 
 rule
-  : 'RULE:' name NEWLINE declaration+ '-->' statement*
+  : 'RULE:' name NEWLINE (named_declaration NEWLINE)+ '-->' NEWLINE (statement NEWLINE)*
   ;
 
 name : ID ;
 
+named_declaration : declaration (':' ID)? ;
 
 declaration
-  : ID ID? (':' ID)? NEWLINE
-  | '[' INT ']'   (':' ID)?
-  | '[' '...' ']' (':' ID)?
+  : (JASMIN_INSTR | ID) ID?
+  | '[' INT ']'
+  | '[' '...' ']'
   | instruction_set
   ;
 
 statement
-  : switch_statement NEWLINE
-  | JASMIN_INSTR expression? NEWLINE
+  : ID
+  | switch_statement
+  | statement_no_switch
   ;
 
-switch_statement : 'switch' '(' ID ')' '{' NEWLINE case_statement+ NEWLINE'}';
-case_statement : JASMIN_INSTR ':' statement* ';' NEWLINE;
+statement_no_switch
+  : JASMIN_INSTR expression?
+  ;
+
+switch_statement : 'switch' '(' ID ')' '{' NEWLINE case_statement+ '}';
+case_statement : JASMIN_INSTR ':' NEWLINE (statement_no_switch NEWLINE)* ';' NEWLINE;
 
 
 /********** EXPRESSIONS **********/
@@ -72,8 +87,7 @@ atomic_expression
   | '(' expression ')'
   ;
 
-
 /********* DECLARATIONS **********/
 
-assign : ID '=' instruction_set;
+assign : ID '=' instruction_set NEWLINE;
 instruction_set : '{' JASMIN_INSTR ('|' JASMIN_INSTR)* '}';

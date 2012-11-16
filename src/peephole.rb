@@ -13,4 +13,6 @@ require_relative 'grammar/PeepholeParser.rb'
 ARGV.each do |a|
   f = open(a)
   parser = Peephole::Parser.new( f )
+  start = parser.start
+  puts start
 end
