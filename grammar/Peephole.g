@@ -6,11 +6,30 @@ options {
 }
 
 JASMIN_INSTR
-  : 'return' | 'areturn' | 'ireturn'
-  | 'iadd' | 'isub' | 'imul' | 'idiv' | 'irem'
-  | 'ldc' | 'iconst'
-  | 'astore' | 'istore'
-  | 'dup' | 'pop'
+  : 'new'
+  | 'nop'           | 'i2c'
+  | 'goto'
+  | 'instanceof'    | 'checkcast'
+  | 'iadd'          | 'isub'
+  | 'imul'          | 'idiv'
+  | 'irem'          | 'iinc'
+  | 'ineg'
+  | 'ifeq'          | 'ifneq'
+  | 'ifnull'        | 'ifnonnull'
+  | 'if_acmpeq'     | 'if_acmpne'
+  | 'if_icmpeq'     | 'if_icmpne'
+  | 'if_icmpgt'     | 'if_icmplt'
+  | 'if_icmple'     | 'if_icmpge'
+  | 'return'
+  | 'areturn'       | 'ireturn'
+  | 'astore'        | 'istore'
+  | 'aload'         | 'iload'
+  | 'dup'           | 'pop'
+  | 'swap'
+  | 'ldc'           | 'iconst'
+  | 'aconst_null'
+  | 'getfield'      | 'putfield'
+  | 'invokevirtual' | 'invokenonvirtual'
   ;
 
 ID : ('_'|'a'..'z'|'A'..'Z')+;
