@@ -28,7 +28,7 @@ MULTILINE_COMMENT :  '/*' (.)* '*/' { skip(); };
  *             START             *
  *********************************/
 
-patterns : rule+ | declaration*;
+patterns : rule+ | assign*;
 
 /************ RULES **************/
 
@@ -39,10 +39,11 @@ rule
 name : ID ;
 
 
-decleration
+declaration
   : ID ID? (':' ID)? NEWLINE
   | '[' INT ']'   (':' ID)?
   | '[' '...' ']' (':' ID)?
+  | instruction_set
   ;
 
 statement
@@ -74,6 +75,5 @@ atomic_expression
 
 /********* DECLARATIONS **********/
 
-declaration
-  : ID '=' '{' JASMIN_INSTR ('|' JASMIN_INSTR)* '}'
-  ;
+assign : ID '=' instruction_set;
+instruction_set : '{' JASMIN_INSTR ('|' JASMIN_INSTR)* '}';

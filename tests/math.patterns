@@ -1,12 +1,12 @@
 int_oper = { iadd | isub | imul | idiv | irem }
 int_load = { ldc | iconst }
 
-RULE: fold_const/*_{%1}_{%2}_{%3}*/
+RULE: fold_const
 int_oper x
 int_load y
-int_oper
+int_oper : hi
 -->
-switch (int_oper) {
+switch (hi) {
   iadd:
     ldc (x + y)
     ;
@@ -24,11 +24,17 @@ switch (int_oper) {
     ;
 }
 
-RULE: pop
+
+RULE: pop_dup
 dup
-[1] : x
+{istore | astore} : x
 pop
 -->
 x
 
 
+RULE: remove_nop
+nop
+[1] : x
+-->
+x
