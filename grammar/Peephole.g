@@ -51,6 +51,13 @@ tokens {
   STATEMENT_SWITCH;
   STATEMENT_VARIABLE;
   STATEMENT_INSTRUCTION;
+
+  /* EXPRESSIONS */
+  EXPRESSION_ADD;
+  EXPRESSION_DIVIDE;
+  EXPRESSION_SUBTRACT;
+  EXPRESSION_MULTIPLY;
+  EXPRESSION_REMAINDER;
 }
 
 /* Jasmin Intruction "token".  Unforutnatnely cannot be an actual token, so is a production instead */
@@ -148,10 +155,10 @@ statement
   ;
 
 statement_no_switch
-  : var=T_VARIABLE
+  : instr=T_JASMIN_INSTRUCTION add_expression?
+      -> ^(STATEMENT_INSTRUCTION $instr add_expression?)
+  | var=T_VARIABLE
       -> ^(STATEMENT_VARIABLE $var)
-  | instr=T_JASMIN_INSTRUCTION expression?
-      -> ^(STATEMENT_INSTRUCTION $instr)
   ;
 
 switch_statement
@@ -166,12 +173,20 @@ case_statement
 
 /* EXPRESSIONS */
 
-expression
-  : mult_expression ((T_PLUS | T_MINUS) mult_expression)*
+add_expression
+  : sub_expression (T_PLUS sub_expression)*
   ;
 
-mult_expression
-  : rem_expression ((T_STAR | T_SLASH) rem_expression)*
+sub_expression
+  : mul_expression (T_MINUS mul_expression)*
+  ;
+
+mul_expression
+  : div_expression (T_STAR div_expression)*
+  ;
+
+div_expression
+  : rem_expression (T_SLASH rem_expression)*
   ;
 
 rem_expression
@@ -179,7 +194,10 @@ rem_expression
   ;
 
 atomic_expression
-  : T_INT
-  | T_VARIABLE
-  | T_L_PAREN expression T_R_PAREN
+  : val=T_INT
+      -> $val
+  | var=T_VARIABLE
+      -> $var
+  | T_L_PAREN add_expression T_R_PAREN
+      -> add_expression
   ;
