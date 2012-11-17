@@ -173,24 +173,48 @@ case_statement
 
 /* EXPRESSIONS */
 
+/* NOTE 1 - These productions require two rules.  One for the first_exp -> second_exp rule and the other for the
+ *         fist_exp -> second_exp (TOKEN second_exp)+ rule.  Unfortunately the only way to do this is to nest the
+ *         AST transformation rules into the actual production.  This makes things rather ugly to read, so the actual
+ *         production rule is witten in comments next to the AST tranformed one.
+ *
+ * NOTE 2 - It gets even worse, because the rule |_| -> (a -> ^A) (a* -> ^B) will actually always create a B node in
+ *         the AST.  This makes some level of sense, as we match the '*' part of the production zero times and can
+ *         return the whole production.  It does however make AST transformation rather tricky.  The trick used here
+ *         is to instead use the (equivalent) rule |_| -> (a -> ^A) (a+ -> ^B)?.  Turns out adding the '?' token to
+ *         rule will allow the first match to return an A and the second to return a B.  All fixed!
+ *
+ * WHY do all this?  Good question.  A simple {a_exp -> b_exp (^T_PLUS b_exp)* rule (note the '^'  character next
+ *   to T_PLUS) would have created a hierarchy with T_PLUS AST nodes that have a "left" and "right" |b_exp| node.
+ *   This would work fine, but it's BORING.  Creating the AST nodes in this way allows us to create one single AST
+ *   node (ex. ADD_EXP) which contains two or more (<- imporant bit) children.  Yay, we've managed to flaten the tree
+ *   a bit!  This makes for a cool optimization, particularly useful had we been writing a grammar for a bigger
+ *   programming language.  Maybe not exactly worth it for this particular case but IT'S COOL (TM), so bite me.
+ */
+
 add_expression
-  : sub_expression (T_PLUS sub_expression)*
+  /*  => sub_expression (T_PLUS sub_expression)*  */
+  : (exp+=sub_expression -> sub_expression) ((T_PLUS exp+=sub_expression)+ -> ^(EXPRESSION_ADD $exp+))?
   ;
 
 sub_expression
-  : mul_expression (T_MINUS mul_expression)*
+  /*  => mul_expression (T_MINUS mul_expression)*  */
+  : (exp+=mul_expression -> mul_expression) ((T_MINUS exp+=mul_expression)+ -> ^(EXPRESSION_SUBTRACT $exp+))?
   ;
 
 mul_expression
-  : div_expression (T_STAR div_expression)*
+  /*  => div_expression (T_STAR div_expression)*  */
+  : (exp+=div_expression -> div_expression) ((T_STAR exp+=div_expression)+ -> ^(EXPRESSION_MULTIPLY $exp+))?
   ;
 
 div_expression
-  : rem_expression (T_SLASH rem_expression)*
+  /*  => rem_expression (T_SLASH rem_expression)*  */
+  : (exp+=rem_expression -> rem_expression) ((T_SLASH exp+=rem_expression)+ -> ^(EXPRESSION_DIVIDE $exp+))?
   ;
 
 rem_expression
-  : atomic_expression (T_MOD atomic_expression)*
+  /*  => atomic_expression (T_MOD atomic_expression)*  */
+  : (exp+=atomic_expression -> atomic_expression) ((T_MOD exp+=atomic_expression)+ -> ^(EXPRESSION_REMAINDER $exp+))?
   ;
 
 atomic_expression
