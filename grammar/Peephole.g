@@ -5,7 +5,10 @@ options {
   output   = AST;
 }
 
+
 tokens {
+  /* TOKENS */
+
   EQUAL = '=';
   PLUS  = '+';
   MINUS = '-';
@@ -29,11 +32,16 @@ tokens {
   SWITCH = 'switch';
   RULE   = 'RULE';
 
+  /* AST NODES */
+
+  /* TOP LEVEL NODES */
   START;
   PATTERN;
   DECLARATION;
   RULE;
 }
+
+/* Jasmin Intruction "token".  Unforutnatnely cannot be an actual token, so is a production instead */
 
 JASMIN_INSTRUCTION
   : 'new'
@@ -62,27 +70,23 @@ JASMIN_INSTRUCTION
   | 'invokevirtual' | 'invokenonvirtual'
   ;
 
-VARIABLE : ('_'|'a'..'z'|'A'..'Z')+;
-
 INT : '0'..'9'+;
 NEWLINE : '\r'? '\n' ;
+VARIABLE : ('_'|'a'..'z'|'A'..'Z')+;
 
-/*********************************
- *              SKIP             *
- *********************************/
+
+/* IGNORED TOKENS */
 
 WHITESPACE        :  (' '|'\t')+     { skip(); };
 MULTILINE_COMMENT :  '/*' (.)* '*/'  { skip(); };
 
-/*********************************
- *             START             *
- *********************************/
+/* START */
 
 start
   : (rule | declaration | NEWLINE)* EOF -> ^(START declaration* rule*)
   ;
 
-/************ RULES **************/
+/* RULES */
 
 rule
   : RULE COLON name NEWLINE (named_instruction NEWLINE)+ R_ARROW NEWLINE (statement NEWLINE)*
@@ -92,6 +96,14 @@ rule
 name
   : VARIABLE
   ;
+
+/* DECLARATIONS */
+
+declaration
+  : VARIABLE EQUAL instruction_set NEWLINE  ->  ^(DECLARATION)
+  ;
+
+/* INSTRUCTIONS */
 
 named_instruction
   : instruction (COLON VARIABLE)?
@@ -103,6 +115,12 @@ instruction
   | L_BRACKET STAR R_BRACKET
   | instruction_set
   ;
+
+instruction_set
+  : L_BRACE JASMIN_INSTRUCTION (BAR JASMIN_INSTRUCTION)* R_BRACE
+  ;
+
+/* STATEMENTS */
 
 statement
   : VARIABLE
@@ -122,7 +140,7 @@ case_statement
   : JASMIN_INSTRUCTION COLON NEWLINE (statement_no_switch NEWLINE)* SEMI_COLON NEWLINE
   ;
 
-/********** EXPRESSIONS **********/
+/* EXPRESSIONS */
 
 expression
   : mult_expression ((PLUS | MINUS) mult_expression)*
@@ -140,14 +158,4 @@ atomic_expression
   : INT
   | VARIABLE
   | L_PAREN expression R_PAREN
-  ;
-
-/********* DECLARATIONS **********/
-
-declaration
-  : VARIABLE EQUAL instruction_set NEWLINE  ->  ^(DECLARATION)
-  ;
-
-instruction_set
-  : L_BRACE JASMIN_INSTRUCTION (BAR JASMIN_INSTRUCTION)* R_BRACE
   ;
