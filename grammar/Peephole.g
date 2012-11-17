@@ -44,6 +44,7 @@ tokens {
   NAMED_INSTRUCTION;
   INSTRUCTION;
   INSTRUCTION_SET;
+  INSTRUCTION_COUNT;
 }
 
 /* Jasmin Intruction "token".  Unforutnatnely cannot be an actual token, so is a production instead */
@@ -79,7 +80,6 @@ T_INT : '0'..'9'+;
 T_NEWLINE : '\r'? '\n' ;
 T_VARIABLE : ('_'|'a'..'z'|'A'..'Z')+;
 
-
 /* IGNORED TOKENS */
 
 WHITESPACE        :  (' '|'\t')+     { skip(); };
@@ -96,7 +96,7 @@ start
 
 rule
   : T_RULE T_COLON name T_NEWLINE (named_instruction T_NEWLINE)+ T_R_ARROW T_NEWLINE (statement T_NEWLINE)*
-      ->  ^(RULE)
+      ->  ^(RULE name named_instruction+)
   ;
 
 name
@@ -107,19 +107,24 @@ name
 
 declaration
   : T_VARIABLE T_EQUAL instruction_set T_NEWLINE
-      ->  ^(DECLARATION instruction_set)
+      ->  ^(DECLARATION T_VARIABLE instruction_set)
   ;
 
 /* INSTRUCTIONS */
 
 named_instruction
-  : instruction (T_COLON T_VARIABLE)?
+  : instruction T_COLON T_VARIABLE
+      -> ^(NAMED_INSTRUCTION T_VARIABLE instruction)
+  | instruction
   ;
 
 instruction
-  : (T_JASMIN_INSTRUCTION | T_VARIABLE) T_VARIABLE?
+  : (instr=T_JASMIN_INSTRUCTION | instr=T_VARIABLE) arg=T_VARIABLE?
+      -> ^(INSTRUCTION $instr $arg?)
   | T_L_BRACKET T_INT T_R_BRACKET
+      -> ^(INSTRUCTION_COUNT T_INT)
   | T_L_BRACKET T_STAR T_R_BRACKET
+      -> ^(INSTRUCTION_COUNT T_STAR)
   | instruction_set
   ;
 

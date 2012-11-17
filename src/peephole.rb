@@ -69,7 +69,7 @@ ARGV.each do |arg|
 
   indent = 0
   print = lambda do |node|
-    s = ' ' * indent
+    s = ' ' * (2 * indent)
     indent += 1
     s << node.text.to_s
     puts s
