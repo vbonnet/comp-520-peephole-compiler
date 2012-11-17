@@ -101,36 +101,37 @@ start
 /* RULES */
 
 rule
-  : T_RULE T_COLON name T_NEWLINE (named_instruction T_NEWLINE)+ T_R_ARROW T_NEWLINE (statement T_NEWLINE)*
-      ->  ^(RULE name named_instruction+ statement*)
+  : T_RULE T_COLON rule_name T_NEWLINE (named_instruction T_NEWLINE)+ T_R_ARROW T_NEWLINE (statement T_NEWLINE)*
+      ->  ^(RULE rule_name named_instruction+ statement*)
   ;
 
-name
-  : T_VARIABLE
+rule_name
+  : name=T_VARIABLE
+      -> $name
   ;
 
 /* DECLARATIONS */
 
 declaration
-  : T_VARIABLE T_EQUAL instruction_set T_NEWLINE
-      ->  ^(DECLARATION T_VARIABLE instruction_set)
+  : var=T_VARIABLE T_EQUAL instruction_set T_NEWLINE
+      ->  ^(DECLARATION $var instruction_set)
   ;
 
 /* INSTRUCTIONS */
 
 named_instruction
-  : instruction T_COLON T_VARIABLE
-      -> ^(NAMED_INSTRUCTION T_VARIABLE instruction)
+  : instruction T_COLON name=T_VARIABLE
+      -> ^(NAMED_INSTRUCTION $name instruction)
   | instruction
   ;
 
 instruction
   : (instr=T_JASMIN_INSTRUCTION | instr=T_VARIABLE) arg=T_VARIABLE?
       -> ^(INSTRUCTION $instr $arg?)
-  | T_L_BRACKET T_INT T_R_BRACKET
-      -> ^(INSTRUCTION_COUNT T_INT)
-  | T_L_BRACKET T_STAR T_R_BRACKET
-      -> ^(INSTRUCTION_COUNT T_STAR)
+  | T_L_BRACKET val=T_INT T_R_BRACKET
+      -> ^(INSTRUCTION_COUNT $val)
+  | T_L_BRACKET val=T_STAR T_R_BRACKET
+      -> ^(INSTRUCTION_COUNT $val)
   | instruction_set
   ;
 
