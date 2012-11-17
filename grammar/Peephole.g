@@ -28,6 +28,11 @@ tokens {
 
   SWITCH = 'switch';
   RULE   = 'RULE';
+
+  START;
+  PATTERN;
+  DECLARATION;
+  RULE;
 }
 
 JASMIN_INSTRUCTION
@@ -73,26 +78,19 @@ MULTILINE_COMMENT :  '/*' (.)* '*/' { skip(); };
  *             START             *
  *********************************/
 
-start : patterns+ EOF;
-
-patterns
-  : rule
-  | assign
-  | NEWLINE
-  ;
+start : (rule | assign | NEWLINE)* EOF -> ^(START assign* rule*);
 
 /************ RULES **************/
 
 rule
-  : RULE COLON name NEWLINE
-    (named_declaration NEWLINE)+
-    R_ARROW NEWLINE
-    (statement NEWLINE)*
+  : RULE COLON name NEWLINE (named_declaration NEWLINE)+ R_ARROW NEWLINE (statement NEWLINE)*
+      ->  ^(RULE)
   ;
 
 name : VARIABLE ;
 
-named_declaration : declaration (COLON VARIABLE)? ;
+named_declaration
+  : declaration (COLON VARIABLE)? ;
 
 declaration
   : (JASMIN_INSTRUCTION | VARIABLE) VARIABLE?
@@ -132,5 +130,10 @@ atomic_expression
 
 /********* DECLARATIONS **********/
 
-assign : VARIABLE EQUAL instruction_set NEWLINE;
-instruction_set : L_BRACE JASMIN_INSTRUCTION (BAR JASMIN_INSTRUCTION)* R_BRACE;
+assign
+  : VARIABLE EQUAL instruction_set NEWLINE  ->  ^(DECLARATION)
+  ;
+
+instruction_set
+  : L_BRACE JASMIN_INSTRUCTION (BAR JASMIN_INSTRUCTION)* R_BRACE
+  ;
