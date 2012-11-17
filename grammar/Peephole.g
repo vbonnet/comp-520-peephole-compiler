@@ -83,16 +83,16 @@ start : (rule | assign | NEWLINE)* EOF -> ^(START assign* rule*);
 /************ RULES **************/
 
 rule
-  : RULE COLON name NEWLINE (named_declaration NEWLINE)+ R_ARROW NEWLINE (statement NEWLINE)*
+  : RULE COLON name NEWLINE (named_instruction NEWLINE)+ R_ARROW NEWLINE (statement NEWLINE)*
       ->  ^(RULE)
   ;
 
 name : VARIABLE ;
 
-named_declaration
-  : declaration (COLON VARIABLE)? ;
+named_instruction
+  : instruction (COLON VARIABLE)? ;
 
-declaration
+instruction
   : (JASMIN_INSTRUCTION | VARIABLE) VARIABLE?
   | L_BRACKET INT R_BRACKET
   | L_BRACKET STAR R_BRACKET
