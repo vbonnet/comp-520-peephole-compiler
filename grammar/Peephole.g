@@ -71,14 +71,16 @@ NEWLINE : '\r'? '\n' ;
  *              SKIP             *
  *********************************/
 
-WHITESPACE        :  (' '|'\t')+                    { skip(); };
-MULTILINE_COMMENT :  '/*' (.)* '*/' { skip(); };
+WHITESPACE        :  (' '|'\t')+     { skip(); };
+MULTILINE_COMMENT :  '/*' (.)* '*/'  { skip(); };
 
 /*********************************
  *             START             *
  *********************************/
 
-start : (rule | declaration | NEWLINE)* EOF -> ^(START declaration* rule*);
+start
+  : (rule | declaration | NEWLINE)* EOF -> ^(START declaration* rule*)
+  ;
 
 /************ RULES **************/
 
@@ -87,10 +89,13 @@ rule
       ->  ^(RULE)
   ;
 
-name : VARIABLE ;
+name
+  : VARIABLE
+  ;
 
 named_instruction
-  : instruction (COLON VARIABLE)? ;
+  : instruction (COLON VARIABLE)?
+  ;
 
 instruction
   : (JASMIN_INSTRUCTION | VARIABLE) VARIABLE?
@@ -105,22 +110,31 @@ statement
   | statement_no_switch
   ;
 
-statement_no_switch : JASMIN_INSTRUCTION expression? ;
+statement_no_switch
+  : JASMIN_INSTRUCTION expression?
+  ;
 
 switch_statement
-  : SWITCH L_PAREN VARIABLE R_PAREN NEWLINE?
-    L_BRACE NEWLINE case_statement+ R_BRACE;
+  : SWITCH L_PAREN VARIABLE R_PAREN NEWLINE? L_BRACE NEWLINE case_statement+ R_BRACE
+  ;
 
 case_statement
-  : JASMIN_INSTRUCTION COLON NEWLINE
-    (statement_no_switch NEWLINE)*
-    SEMI_COLON NEWLINE;
+  : JASMIN_INSTRUCTION COLON NEWLINE (statement_no_switch NEWLINE)* SEMI_COLON NEWLINE
+  ;
 
 /********** EXPRESSIONS **********/
 
-expression : mult_expression ((PLUS | MINUS) mult_expression)*;
-mult_expression : rem_expression ((STAR | SLASH) rem_expression)*;
-rem_expression : atomic_expression (MOD atomic_expression)*;
+expression
+  : mult_expression ((PLUS | MINUS) mult_expression)*
+  ;
+
+mult_expression
+  : rem_expression ((STAR | SLASH) rem_expression)*
+  ;
+
+rem_expression
+  : atomic_expression (MOD atomic_expression)*
+  ;
 
 atomic_expression
   : INT
