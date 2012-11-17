@@ -78,7 +78,7 @@ MULTILINE_COMMENT :  '/*' (.)* '*/' { skip(); };
  *             START             *
  *********************************/
 
-start : (rule | assign | NEWLINE)* EOF -> ^(START assign* rule*);
+start : (rule | declaration | NEWLINE)* EOF -> ^(START declaration* rule*);
 
 /************ RULES **************/
 
@@ -130,7 +130,7 @@ atomic_expression
 
 /********* DECLARATIONS **********/
 
-assign
+declaration
   : VARIABLE EQUAL instruction_set NEWLINE  ->  ^(DECLARATION)
   ;
 
