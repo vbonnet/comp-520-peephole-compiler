@@ -39,6 +39,11 @@ tokens {
   PATTERN;
   DECLARATION;
   RULE;
+
+  /* INSTRUCTIONS */
+  NAMED_INSTRUCTION;
+  INSTRUCTION;
+  INSTRUCTION_SET;
 }
 
 /* Jasmin Intruction "token".  Unforutnatnely cannot be an actual token, so is a production instead */
@@ -83,7 +88,8 @@ MULTILINE_COMMENT :  '/*' (.)* '*/'  { skip(); };
 /* START */
 
 start
-  : (rule | declaration | T_NEWLINE)* EOF -> ^(START declaration* rule*)
+  : (rule | declaration | T_NEWLINE)* EOF
+      -> ^(START declaration* rule*)
   ;
 
 /* RULES */
@@ -100,7 +106,8 @@ name
 /* DECLARATIONS */
 
 declaration
-  : T_VARIABLE T_EQUAL instruction_set T_NEWLINE  ->  ^(DECLARATION)
+  : T_VARIABLE T_EQUAL instruction_set T_NEWLINE
+      ->  ^(DECLARATION instruction_set)
   ;
 
 /* INSTRUCTIONS */
@@ -117,7 +124,8 @@ instruction
   ;
 
 instruction_set
-  : T_L_BRACE T_JASMIN_INSTRUCTION (T_BAR T_JASMIN_INSTRUCTION)* T_R_BRACE
+  : T_L_BRACE instr+=T_JASMIN_INSTRUCTION (T_BAR instr+=T_JASMIN_INSTRUCTION)* T_R_BRACE
+      -> ^(INSTRUCTION_SET $instr+)
   ;
 
 /* STATEMENTS */
