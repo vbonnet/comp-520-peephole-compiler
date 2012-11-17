@@ -45,6 +45,12 @@ tokens {
   INSTRUCTION;
   INSTRUCTION_SET;
   INSTRUCTION_COUNT;
+
+  /* INSTRUCTIONS */
+  STATEMENT_CASE;
+  STATEMENT_SWITCH;
+  STATEMENT_VARIABLE;
+  STATEMENT_INSTRUCTION;
 }
 
 /* Jasmin Intruction "token".  Unforutnatnely cannot be an actual token, so is a production instead */
@@ -96,7 +102,7 @@ start
 
 rule
   : T_RULE T_COLON name T_NEWLINE (named_instruction T_NEWLINE)+ T_R_ARROW T_NEWLINE (statement T_NEWLINE)*
-      ->  ^(RULE name named_instruction+)
+      ->  ^(RULE name named_instruction+ statement*)
   ;
 
 name
@@ -136,21 +142,25 @@ instruction_set
 /* STATEMENTS */
 
 statement
-  : T_VARIABLE
-  | switch_statement
+  : switch_statement
   | statement_no_switch
   ;
 
 statement_no_switch
-  : T_JASMIN_INSTRUCTION expression?
+  : var=T_VARIABLE
+      -> ^(STATEMENT_VARIABLE $var)
+  | instr=T_JASMIN_INSTRUCTION expression?
+      -> ^(STATEMENT_INSTRUCTION $instr)
   ;
 
 switch_statement
-  : T_SWITCH T_L_PAREN T_VARIABLE T_R_PAREN T_NEWLINE? T_L_BRACE T_NEWLINE case_statement+ T_R_BRACE
+  : T_SWITCH T_L_PAREN val=T_VARIABLE T_R_PAREN T_NEWLINE? T_L_BRACE T_NEWLINE case_statement+ T_R_BRACE
+      -> ^(STATEMENT_SWITCH $val case_statement+)
   ;
 
 case_statement
-  : T_JASMIN_INSTRUCTION T_COLON T_NEWLINE (statement_no_switch T_NEWLINE)* T_SEMI_COLON T_NEWLINE
+  : val=T_JASMIN_INSTRUCTION T_COLON T_NEWLINE (stmts+=statement_no_switch T_NEWLINE)* T_SEMI_COLON T_NEWLINE
+      -> ^(STATEMENT_CASE $val $stmts*)
   ;
 
 /* EXPRESSIONS */
