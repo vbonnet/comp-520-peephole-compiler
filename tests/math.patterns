@@ -2,7 +2,7 @@ int_oper = { iadd | isub | imul | idiv | irem }
 int_load = { ldc | iconst }
 
 RULE: fold_const
-int_oper x
+int_load x
 int_load y
 int_oper : hi
 -->
