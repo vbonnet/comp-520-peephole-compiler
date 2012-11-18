@@ -60,7 +60,7 @@ tokens {
   EXPRESSION_REMAINDER;
 }
 
-/* Jasmin Intruction "token".  Unforutnatnely cannot be an actual token, so is a production instead */
+/* Jasmin Intruction "token".  Unfortunately cannot be an actual token, so is a production instead */
 
 T_JASMIN_INSTRUCTION
   : 'new'
