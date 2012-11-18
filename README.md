@@ -5,8 +5,8 @@
 
 This compiler was created to generate code  for the peephole pattern portion of McGill's compilers course
 ([COMP 520](http://www.cs.mcgill.ca/~cs520/)). It takes as input a language defined specifically for this compiler
-(explained more in [`grammar/README`](https://github.com/vbonnet/Peephole-Compiler/blob/master/README.md)).  The
-language is designed to resemble the [Jasmin](http://jasmin.sourceforge.net/) bytecode while still allow for the
+(explained more in [`grammar/README`](https://github.com/vbonnet/Peephole-Compiler/blob/master/grammar/README.md)).
+The language is designed to resemble the [Jasmin](http://jasmin.sourceforge.net/) bytecode while still allow for the
 creation of complex patterns.  The output of the compiler is .c files that depend on the
 [optimize.c](http://www.cs.mcgill.ca/~cs520/2012/joos/a-/optimize.c) API.
 
@@ -48,7 +48,7 @@ NOTE - This part is in the works, right now it only prints the AST
 
 * The Ruby code should follow the [Github Ruby styleguide](https://github.com/styleguide/ruby)
 * The grammar has its own style, defined in
-[`grammar/README`](https://github.com/vbonnet/Peephole-Compiler/blob/master/README.md)
+[`grammar/README`](https://github.com/vbonnet/Peephole-Compiler/blob/master/grammar/README.md)
 
 ## Contributing ##
 ------------------
