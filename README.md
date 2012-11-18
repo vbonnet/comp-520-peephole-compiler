@@ -5,7 +5,7 @@
 
 This compiler was created to generate code  for the peephole pattern portion of McGill's compilers course
 ([COMP 520](http://www.cs.mcgill.ca/~cs520/)). It takes as input a language defined specifically for this compiler
-(explained more in [`grammar/README`](grammar/README.md).  The language is designed to resemble the
+(explained more in [`grammar/README`](Peephole-Compiler/blob/master/README.md)).  The language is designed to resemble the
 [Jasmin](http://jasmin.sourceforge.net/) bytecode while still allow for the creation of complex patterns.  The output
 of the compiler is .c files that depend on the [optimize.c](http://www.cs.mcgill.ca/~cs520/2012/joos/a-/optimize.c)
 API.
@@ -27,7 +27,7 @@ The first step in installation is to install the actual repo.
 
     git clone git://github.com/vbonnet/Peephole-Compiler.git
 
-The repo comes with the ANTLR code inside the lib/ directory.  However the Ruby target requires some ruby code not
+The repo comes with the ANTLR code inside the `lib/` directory.  However the Ruby target requires some ruby code not
 included with the project.  To download this code simply run
 
     gem install antlr3
@@ -41,13 +41,13 @@ compiler by running:
 
     ruby src/peephole.rb
 
-NOTE - This part is in the works, right now this only prints the AST
+NOTE - This part is in the works, right now it only prints the AST
 
 ## Style guides ##
 ------------------
 
 * The Ruby code should follow the [Github Ruby styleguide](https://github.com/styleguide/ruby)
-* The grammar has its own style, defined in [`grammar/README`](grammar/README.md)
+* The grammar has its own style, defined in [`grammar/README`](Peephole-Compiler/blob/master/README.md)
 
 ## Contributing ##
 ------------------
