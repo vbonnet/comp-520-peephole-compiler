@@ -95,8 +95,8 @@ T_VARIABLE : ('_'|'a'..'z'|'A'..'Z')+;
 
 /* IGNORED TOKENS */
 
-WHITESPACE        :  (' '|'\t')+     { skip(); };
-MULTILINE_COMMENT :  '/*' (.)* '*/'  { skip(); };
+WHITESPACE        :  (' '|'\t')+                               { skip(); };
+MULTILINE_COMMENT :  '/*' (options {greedy=false;} : .)* '*/'  { skip(); };
 
 /* START */
 
