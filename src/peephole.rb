@@ -73,10 +73,24 @@ def traverse(tree, on_enter, on_exit = nil, on_leaf = nil)
   on_exit.call(tree) unless on_exit == nil
 end
 
-# MAIN
-ARGV.each do |arg|
-  parser = Peephole::Parser.new(open(arg))
-
+# Public: Prints the AST to stdout
+#
+# tree - The ANTLR3::AST::BaseTree object to print.
+#
+# Example
+#
+#   This assumes the variable |tree| has been loaded with an AST generated form the string "int_oper={iadd|isub}"
+#   print(tree)
+#     # => "
+#   START  :(22)
+#   DECLARATION  :(24)
+#     int_oper
+#     INSTRUCTION_SET  :(28)
+#        iadd
+#        isub
+#   "
+#
+def printAST(tree)
   indent = 0
   print_node = lambda do |node|
     s = ' ' * (2 * indent)
@@ -88,6 +102,12 @@ ARGV.each do |arg|
     s = ' ' * (2 * indent)
     puts s << leaf.text.to_s
   end
-  traverse(parser.start.tree, print_node, lambda{ |_|  indent -= 1 }, print_leaf)
+  traverse(tree, print_node, lambda{ |_|  indent -= 1 }, print_leaf)
+end
+
+# MAIN
+ARGV.each do |arg|
+  parser = Peephole::Parser.new(open(arg))
+  printAST(parser.start.tree)
 end
 
