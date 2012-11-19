@@ -46,21 +46,31 @@ end
 # tree     - The ANTLR3::AST::BaseTree object to be traversed.
 # on_enter - The function to call on each node on the way down the tree.
 # on_exit  - The function to call on each node on the way back up the tree.
+# on_leaf  - The function to call on leaves as they are hit.
 #
 # Example
 #
-#   on_enter = lambda do |one, two, ...|
+#   on_enter = lambda do |node|
 #     # body omitted
 #   end
-#   on_exit = lambda do |one, two, ...|
+#   on_exit = lambda do |node|
+#     # body omitted
+#   end
+#   one_leaf = lamnda do |leaf|
 #     # body omitted
 #   end
 #   traverse(tree, on_enter, on_exit)
 #
-def traverse(tree, on_enter, on_exit = nil)
+def traverse(tree, on_enter, on_exit = nil, on_leaf = nil)
   on_enter.call(tree)
-  tree.children.each { |child| traverse(child, on_enter, on_exit) } unless tree.empty?
-  on_exit.call(tree) if on_exit != nil
+  tree.children.each do |child|
+    if child.empty?
+      on_leaf.call(child) unless on_leaf == nil
+    else
+      traverse(child, on_enter, on_exit, on_leaf)
+    end
+  end
+  on_exit.call(tree) unless on_exit == nil
 end
 
 # MAIN
@@ -68,12 +78,16 @@ ARGV.each do |arg|
   parser = Peephole::Parser.new(open(arg))
 
   indent = 0
-  print = lambda do |node|
+  print_node = lambda do |node|
     s = ' ' * (2 * indent)
     indent += 1
     s << node.text.to_s
-    puts s
+    puts s << '  :(' << node.type.to_s << ')'
   end
-  traverse(parser.start.tree, print, lambda{ |_|  indent -= 1 })
+  print_leaf = lambda do |leaf|
+    s = ' ' * (2 * indent)
+    puts s << leaf.text.to_s
+  end
+  traverse(parser.start.tree, print_node, lambda{ |_|  indent -= 1 }, print_leaf)
 end
 
