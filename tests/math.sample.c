@@ -13,15 +13,15 @@
 int fold_constant_ldc_ldc_iadd(CODE **c) {
   /* int_oper[ldc] x */
   CODE *instr_1 = *c;
-  int x;
-  if (!is_ldc(instr_1, &x) {
+  int arg_x;
+  if (!is_ldc(instr_1, &arg_x) {
     return 0;
   }
 
   /* int_load[ldc] y */
   CODE *instr_2 = next(instr_1);
-  int y;
-  if (!is_ldc(instr_2, &y)) {
+  int arg_y;
+  if (!is_ldc(instr_2, &arg_y)) {
     return 0;
   }
 
@@ -35,7 +35,7 @@ int fold_constant_ldc_ldc_iadd(CODE **c) {
    *   iadd:
    *     ldc (x + y)
    */
-  CODE *statement_1 = makeCODEldc(x + y);
+  CODE *statement_1 = makeCODEldc(arg_x + arg_y);
 
   return replace(c, 3, statement_1);
 }

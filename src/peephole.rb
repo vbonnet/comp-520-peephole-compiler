@@ -62,7 +62,7 @@ end
 #   traverse(tree, on_enter, on_exit)
 #
 def traverse(tree, on_enter, on_exit = nil, on_leaf = nil)
-  on_enter.call(tree)
+  on_enter.call(tree) unless on_enter == nil
   tree.children.each do |child|
     if child.empty?
       on_leaf.call(child) unless on_leaf == nil
@@ -107,7 +107,7 @@ end
 
 #
 #
-def build_instruction_map(tree)
+def build_declaration_map(tree)
   include Peephole::TokenData
 
   declaration_map = {}
@@ -135,8 +135,105 @@ def build_instruction_map(tree)
   return declaration_map
 end
 
+#
+#
+def declaration_string(name, next_instr)
+  s =  'CODE *' << name + ' = '
+  if (next_instr == '*c')
+    s << next_instr << ";\n"
+  else
+    s << 'next(' << next_instr << ");\n"
+  end
+  next_instr.replace(name)
+  return s
+end
+
+#
+#
+def build_format_string(rule, declarations)
+  include Peephole::TokenData
+
+  format = ''
+  indent = 0;
+
+  instr_index = 1;
+  next_instr = '*c';
+  # block to be run up entering a parent node
+  in_a_node = lambda do |node|
+    children = node.children
+    # ident format string
+    format << '  ' * indent
+
+    case node.type
+    when RULE
+      # print the method signature
+      format << children[0].text << "(CODE **c) {\n"
+      indent += 1
+    when NAMED_INSTRUCTION
+      # print the instruciton declaration
+      name =  'instr_' << children[0].text
+      format << declaration_string(name, next_instr)
+      instr_index += 1
+    when UNNAMED_INSTRUCTION
+      # number the isntruction and print the declaration
+      name =  'instr_' << instr_index.to_s
+      format << declaration_string(name, next_instr)
+      instr_index += 1
+    when INSTRUCTION
+      if declarations[children[0].text] == nil
+        # print the actual instruction name if available
+        instruction = children[0].text
+      else
+        # otherwise set is as variable to be hooked later
+        instruction = "%s"
+      end
+
+      argument = nil
+      if children[1] != nil
+        # get the arguments name if it exists
+        argument = 'arg_' << children[1].text
+        # print the argument declaration
+        format << 'int ' << argument << ";\n" << '  ' * indent
+      end
+
+      # print the instruction checking if statement
+      format << 'if (!is_' << instruction << '(' << next_instr
+      format << ", &" << argument unless argument == nil
+      format << ")) {\n"
+      format << '  ' << '  ' * indent << "return 0;\n"
+      format << '  ' * indent << "}\n"
+    else
+      next
+    end
+  end
+
+  # code to be run when we exit a parent node
+  out_a_node = lambda do |node|
+    case node.type
+    when RULE
+      format << "}\n"
+      indent -= 1
+    when NAMED_INSTRUCTION, UNNAMED_INSTRUCTION, INSTRUCTION
+      format << "\n"
+    else
+      next
+    end
+  end
+
+  traverse(rule, in_a_node, out_a_node)
+  return format
+end
+
 def print_c_code(tree)
-  build_instruction_map(tree).each { |k, v| puts k + '  --> ';  puts v.to_a}
+  declarations = build_declaration_map(tree)
+
+  include Peephole::TokenData
+  tree.children.each do |rule|
+    if rule.type == RULE
+      puts build_format_string(rule, declarations)
+      puts "\n\n"
+    end
+  end
 end
 
 # MAIN

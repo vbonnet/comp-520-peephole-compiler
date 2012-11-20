@@ -42,6 +42,7 @@ tokens {
 
   /* INSTRUCTIONS */
   NAMED_INSTRUCTION;
+  UNNAMED_INSTRUCTION;
   INSTRUCTION;
   INSTRUCTION_SET;
   INSTRUCTION_COUNT;
@@ -130,6 +131,7 @@ named_instruction
   : instruction T_COLON name=T_VARIABLE
       -> ^(NAMED_INSTRUCTION $name instruction)
   | instruction
+      -> ^(UNNAMED_INSTRUCTION instruction)
   ;
 
 instruction
