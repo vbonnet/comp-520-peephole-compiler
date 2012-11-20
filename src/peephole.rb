@@ -90,7 +90,7 @@ end
 #        isub
 #   "
 #
-def printAST(tree)
+def print_ast(tree)
   indent = 0
   print_node = lambda do |node|
     s = ' ' * (2 * indent)
@@ -105,9 +105,43 @@ def printAST(tree)
   traverse(tree, print_node, lambda{ |_|  indent -= 1 }, print_leaf)
 end
 
+#
+#
+def build_instruction_map(tree)
+  include Peephole::TokenData
+
+  declaration_map = {}
+
+  tree.children.each do |declaration|
+    if declaration.type == DECLARATION
+      # find the name of the newly declared variable
+      name = declaration.children[0].text
+
+      # if two declarations have the same name throw an execptio to  be caught and show to the user
+      throw 'redeclaration of instruction set' if declaration_map[name] != nil
+
+      # find the set of instructions associated with this declaration
+      set = declaration.children[1]
+      instruction_set = Set.new
+      set.each { |instr| instruction_set.add(instr.text) }
+
+      # add {name => instruction_set} to the map
+      declaration_map[name] = instruction_set
+    else
+      break
+    end
+  end
+
+  return declaration_map
+end
+
+def print_c_code(tree)
+  build_instruction_map(tree).each { |k, v| puts k + '  --> ';  puts v.to_a}
+end
+
 # MAIN
 ARGV.each do |arg|
   parser = Peephole::Parser.new(open(arg))
-  printAST(parser.start.tree)
+  print_c_code(parser.start.tree)
 end
 
