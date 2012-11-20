@@ -244,6 +244,7 @@ def get_variable_instructions(rule, declarations)
   return variable_instructions
 end
 
+
 #
 #
 def print_rule(rule, declarations)
@@ -253,16 +254,44 @@ def print_rule(rule, declarations)
   signature_format << ('_%s') * variable_instructions.size
   signature_format << "(CODE **c) {\n"
 
-  # print the signature
-  puts signature_format % variable_instructions
-
-  # print the declarations
   declarations_format = build_declarations_format(rule, declarations)
-  puts declarations_format % variable_instructions << "\n\n"
 
-  # close off the method
-  puts "}\n"
+  # We have a bunch of unfixed (INSTRUCTION_SETs) variables for each rule (potential).
+  # A function need to be printed for every single possible combination for all of these
+  # instructions.  This loop iterates over all possibilities and then prints a method for that
+  # combination.  It does this by fixing the current variable in the array |fixed| to be one of
+  # the possible instructions.  Then it recurses on the (unset) right hand side of the array.
+  # Once all those have been completed it fixes a different instruction to the current variable.
+  # In doing so we cover all possible combinations of instructions, and at each level we print
+  # the funtion.  This is done inplace (|fixed| is never copied) which means we don't have to deal
+  # with crazy space complexity.
+  set_variables = lambda do |fixed, i|
+    if i < variable_instructions.size
+      # figure out which variable we should be setting
+      variable = variable_instructions[i]
+      declarations[variable].each do |instr|
+        # for each possible instruction, set it and recurse on the right hand of the list
+        # note that we can simply set this variable (insteaad of copying the entire list)
+        # since we'll overwrite it when the recursion ends and we return here
+        # in order for this we must not change to original list (|variable_instructions|)
+        fixed[i] = instr
+        set_variables.call(fixed, i+1)
+      end
+    else
+      # print the signature
+      puts signature_format % fixed
 
+      # print the declarations
+      puts declarations_format % fixed
+
+      # close off the method
+      puts "}\n\n\n"
+    end
+  end
+
+  # call the block created above with an empty array (same size as |variable_instructions.size|)
+  # start at index 0 so we get full coverage of the variable instructions.
+  set_variables.call([] * variable_instructions.size, 0)
 end
 
 #
