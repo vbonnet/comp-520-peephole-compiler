@@ -150,34 +150,27 @@ end
 
 #
 #
-def build_format_string(rule, declarations)
+def build_declarations_format(rule, declarations)
   include Peephole::TokenData
 
   format = ''
-  indent = 0;
 
   instr_index = 1;
   next_instr = '*c';
   # block to be run up entering a parent node
   in_a_node = lambda do |node|
     children = node.children
-    # ident format string
-    format << '  ' * indent
 
     case node.type
-    when RULE
-      # print the method signature
-      format << children[0].text << "(CODE **c) {\n"
-      indent += 1
     when NAMED_INSTRUCTION
       # print the instruciton declaration
       name =  'instr_' << children[0].text
-      format << declaration_string(name, next_instr)
+      format << '  ' << declaration_string(name, next_instr)
       instr_index += 1
     when UNNAMED_INSTRUCTION
       # number the isntruction and print the declaration
       name =  'instr_' << instr_index.to_s
-      format << declaration_string(name, next_instr)
+      format << '  ' << declaration_string(name, next_instr)
       instr_index += 1
     when INSTRUCTION
       if declarations[children[0].text] == nil
@@ -193,15 +186,15 @@ def build_format_string(rule, declarations)
         # get the arguments name if it exists
         argument = 'arg_' << children[1].text
         # print the argument declaration
-        format << 'int ' << argument << ";\n" << '  ' * indent
+        format << '  int ' << argument << ";\n"
       end
 
       # print the instruction checking if statement
-      format << 'if (!is_' << instruction << '(' << next_instr
+      format << '  if (!is_' << instruction << '(' << next_instr
       format << ", &" << argument unless argument == nil
       format << ")) {\n"
-      format << '  ' << '  ' * indent << "return 0;\n"
-      format << '  ' * indent << "}\n"
+      format << '    ' << "return 0;\n"
+      format << '  ' << "}\n"
     else
       next
     end
@@ -210,9 +203,6 @@ def build_format_string(rule, declarations)
   # code to be run when we exit a parent node
   out_a_node = lambda do |node|
     case node.type
-    when RULE
-      format << "}\n"
-      indent -= 1
     when NAMED_INSTRUCTION, UNNAMED_INSTRUCTION, INSTRUCTION
       format << "\n"
     else
@@ -224,14 +214,66 @@ def build_format_string(rule, declarations)
   return format
 end
 
+#
+#
+def get_variable_instructions(rule, declarations)
+  index = 1
+  variable_instructions = []
+
+  get_variable = lambda do |line|
+    case line.type
+    when INSTRUCTION
+      instruction = line.children[0].text
+      variable_instructions += [instruction] unless declarations[instruction] == nil
+    when INSTRUCTION_SET
+      # create a name for the new set we'll create
+      name = 'inlined_' << index.to_s
+
+      # create a set containing all the instructions in this declaration
+      set = Set.new
+      line.children.each { |instr| set.add(instr.text) }
+
+      # add the set to |declarations|, add a new entry to |variable_instructions|, increment index
+      declarations[name] = set
+      variable_instructions += [name]
+      index += 1
+    end
+  end
+
+  traverse(rule, get_variable)
+  return variable_instructions
+end
+
+#
+#
+def print_rule(rule, declarations)
+  variable_instructions = get_variable_instructions(rule, declarations)
+
+  signature_format = 'int ' << rule.children[0].text
+  signature_format << ('_%s') * variable_instructions.size
+  signature_format << "(CODE **c) {\n"
+
+  # print the signature
+  puts signature_format % variable_instructions
+
+  # print the declarations
+  declarations_format = build_declarations_format(rule, declarations)
+  puts declarations_format % variable_instructions << "\n\n"
+
+  # close off the method
+  puts "}\n"
+
+end
+
+#
+#
 def print_c_code(tree)
   declarations = build_declaration_map(tree)
 
   include Peephole::TokenData
   tree.children.each do |rule|
     if rule.type == RULE
-      puts build_format_string(rule, declarations)
-      puts "\n\n"
+      print_rule(rule, declarations.clone)
     end
   end
 end
