@@ -211,7 +211,7 @@ def build_declarations_format(rule, declarations)
   end
 
   traverse(rule, in_a_node, out_a_node)
-  format << "  next = next(" << next_instr << ");\n\n"
+  format << "  CODE *last = next(" << next_instr << ");\n\n"
   return [format, instr_index - 1]
 end
 
@@ -340,7 +340,6 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
     end
   end
 
-  string << "\n  statement_" << statement_count.to_s << '->next = next'
   string << "\n" << '  return replace(c, ' << replace_count << ", statement_1);\n";
   return string
 end
@@ -416,7 +415,7 @@ def print_c_code(tree)
 
   init_patterns = "int init_patterns() {\n"
   $c_methods.each { |m| init_patterns << '  ADD_PATTERN(' << m << ");\n" }
-  init_patterns << "}\n"
+  init_patterns << "  return 1;\n}\n"
   puts init_patterns
 end
 
