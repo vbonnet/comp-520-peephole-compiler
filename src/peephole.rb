@@ -211,7 +211,6 @@ def build_declarations_format(rule, declarations)
   end
 
   traverse(rule, in_a_node, out_a_node)
-  format << "  CODE *last = next(" << next_instr << ");\n\n"
   return [format, instr_index - 1]
 end
 
