@@ -193,8 +193,7 @@ def build_declarations_format(rule, declarations)
       format << '  if (!is_' << instruction << '(' << next_instr
       format << ", &" << argument unless argument == nil
       format << ")) {\n"
-      format << '    ' << "return 0;\n"
-      format << '  ' << "}\n"
+      format << "    return 0;\n  }"
     else
       next
     end
@@ -211,6 +210,7 @@ def build_declarations_format(rule, declarations)
   end
 
   traverse(rule, in_a_node, out_a_node)
+  format << "  next = next(" << next_instr << ");\n\n"
   return [format, instr_index - 1]
 end
 
@@ -331,7 +331,7 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
 
       string << "\n  CODE *statement_" << statement_count.to_s << ' = makeCODE'  << instruction_type << '('
       string << build_c_expression(expression) unless expression == nil
-      string << ");\n"
+      string << ", NULL);\n"
       created = true
     end
     if created && statement_count > 1
@@ -339,8 +339,8 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
     end
   end
 
-  string << "\n  statement_" << statement_count.to_s << '->next = next' << statement_count
-  string << "\n" << '  replace(c, ' << replace_count << ", statement_1);\n\n";
+  string << "\n  statement_" << statement_count.to_s << '->next = next'
+  string << "\n" << '  return replace(c, ' << replace_count << ", statement_1);\n";
   return string
 end
 
