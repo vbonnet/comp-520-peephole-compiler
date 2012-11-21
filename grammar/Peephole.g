@@ -84,7 +84,7 @@ T_JASMIN_INSTRUCTION
   | 'aload'         | 'iload'
   | 'dup'           | 'pop'
   | 'swap'
-  | 'ldc'           | 'iconst'
+  | 'ldc_int'       | 'ldc_string'
   | 'aconst_null'
   | 'getfield'      | 'putfield'
   | 'invokevirtual' | 'invokenonvirtual'
