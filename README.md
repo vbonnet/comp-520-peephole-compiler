@@ -15,7 +15,7 @@ creation of complex patterns.  The output of the compiler is .c files that depen
 
 This project uses [ANTLR](http://antlr.org/) for its parser generator.  ANTLR provides many target languages, this
 project is using the [Ruby target](http://antlr.ohboyohboyohboy.org/) for ANTLR.  The docs for the code generated
-by this target can be found at http://rubydoc.info/github/ohboyohboyohboy/antlr3/.  Unfortuantely the docs themselves
+by this target can be found at http://rubydoc.info/github/ohboyohboyohboy/antlr3/.  Unfortunately the docs themselves
 are somewhat lacking as the main developer seems to have dropped the project.  Honestly given the support provided
 for ANTLR+Ruby we probably should've picked a different language.  But @vbonnet wanted to code in Ruby, so that was
 that.
