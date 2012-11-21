@@ -294,10 +294,12 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
   rule.children.each do |node|
     children = node.children
 
+    create = false
     case node.type
     when STATEMENT_INSTRUCTION
       statement_count += 1
       string << '  CODE *statement_' << statement_count << ' = makeCODE'  << instruction_type << '('
+      create = true
     when STATEMENT_VARIABLE
       statement_count += 1
       variable = children[0].text
@@ -307,7 +309,8 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
         instruction_type = variable_types[i]
 
         string << '  statement_' << statement_count.to_s << ' = instr_' << variable << ";\n"
-        end
+      end
+      created = true
     when STATEMENT_SWITCH
       statement_count += 1
       # find the instruction type that has been fixed to the variable being switched on
@@ -326,13 +329,18 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
       instruction_type = current_case.children[0].text
       expression = current_case.children[1]
 
-      string << '  CODE *statement_' << statement_count << ' = makeCODE'  << instruction_type << '('
+      string << "\n  CODE *statement_" << statement_count.to_s << ' = makeCODE'  << instruction_type << '('
       string << build_c_expression(expression) unless expression == nil
       string << ");\n"
+      created = true
+    end
+    if created && statement_count > 1
+      string << '  statement_' << (statement_count - 1).to_s << '->next = statement_' << statement_count.to_s
     end
   end
 
-  string << "\n\n" << '  replace(c, ' << replace_count.to_s << ", statement_1);\n\n";
+  string << "\n  statement_" << statement_count.to_s << '->next = next' << statement_count
+  string << "\n" << '  replace(c, ' << replace_count << ", statement_1);\n\n";
   return string
 end
 
