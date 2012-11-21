@@ -10,6 +10,7 @@ end
 
 require_relative 'grammar/PeepholeParser.rb'
 
+$c_methods = []
 
 # Internal: Prints all methods that can be called on this objects.  Each of method is ont its own line.
 #
@@ -351,9 +352,7 @@ def print_rule(rule, declarations)
   variable_instructions = variables[0]
   variable_names = variables[1]
 
-  signature_format = 'int ' << rule.children[0].text
-  signature_format << ('_%s') * variable_instructions.size
-  signature_format << "(CODE **c) {\n"
+  signature_format = rule.children[0].text << ('_%s') * variable_instructions.size
 
   dec = build_declarations_format(rule, declarations)
   declarations_format = dec[0]
@@ -382,7 +381,10 @@ def print_rule(rule, declarations)
       end
     else
       # print the signature
-      puts signature_format % fixed
+      puts 'int ' << (signature_format % fixed) << "(CODE **c) {\n"
+
+      # store the method name so that we can print it in 'init_patterns' later
+      $c_methods += [signature_format % fixed]
 
       # print the declarations
       puts declarations_format % fixed
@@ -411,11 +413,17 @@ def print_c_code(tree)
       print_rule(rule, declarations.clone)
     end
   end
+
+  init_patterns = "int init_patterns() {\n"
+  $c_methods.each { |m| init_patterns << '  ADD_PATTERN(' << m << ");\n" }
+  init_patterns << "}\n"
+  puts init_patterns
 end
 
 # MAIN
 ARGV.each do |arg|
-  parser = Peephole::Parser.new(open(arg))
+  f = open(arg)
+  parser = Peephole::Parser.new(f)
   print_c_code(parser.start.tree)
 end
 
