@@ -211,22 +211,22 @@ def build_declarations_format(rule, declarations)
   end
 
   traverse(rule, in_a_node, out_a_node)
-  return [format, instr_index - 1]
+  return [format, (instr_index - 1).to_s]
 end
 
 #
 #
 def get_variable_instructions(rule, declarations)
   index = 1
-  variable_instructions = []
   variable_names = []
+  variable_instructions = []
 
-  name_line = lambda do |node|
-    case node.type
+  parent_name = lambda do |node|
+    case node.parent.type
     when NAMED_INSTRUCTION
-      variable_names += [node.children[0].text]
+      return node.parent.children[0].text
     when UNNAMED_INSTRUCTION
-      variable_names += ['unnamed']
+      return 'unnamed'
     end
   end
 
@@ -235,11 +235,11 @@ def get_variable_instructions(rule, declarations)
     when INSTRUCTION
       instruction = line.children[0].text
       if declarations[instruction] != nil
-        name_line.call(line.parent)
+        variable_names += [parent_name.call(line)]
         variable_instructions += [instruction]
       end
     when INSTRUCTION_SET
-      name_line.call(line.parent)
+      variable_names += [parent_name.call(line)]
       # create a name for the new set we'll create
       name = 'inlined_' << index.to_s
 
@@ -255,7 +255,7 @@ def get_variable_instructions(rule, declarations)
   end
 
   traverse(rule, in_a_node)
-  return [variable_instructions, variable_names]
+  return [variable_names, variable_instructions]
 end
 
 #
@@ -284,11 +284,13 @@ def build_c_expression(expression)
   return '(' << children_strings.join(separator) << ')'
 end
 
+#
+#
 def build_statements_string(rule, replace_count, variable_names, variable_types)
   include Peephole::TokenData
 
   string = ''
-  statement_count = 0
+  statement_count = 1
 
   # code run up entering a parent node
   rule.children.each do |node|
@@ -297,22 +299,13 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
     create = false
     case node.type
     when STATEMENT_INSTRUCTION
-      statement_count += 1
       string << '  CODE *statement_' << statement_count << ' = makeCODE'  << instruction_type << '('
       create = true
     when STATEMENT_VARIABLE
-      statement_count += 1
-      variable = children[0].text
-      i = variable_names.index(variable)
-      if i != nil
-        # TODO deal with [#]
-        instruction_type = variable_types[i]
-
-        string << '  statement_' << statement_count.to_s << ' = instr_' << variable << ";\n"
-      end
+      instr_name = children[0].text
+      string << '  CODE *statement_' << statement_count.to_s << ' = instr_' << instr_name << ";\n"
       created = true
     when STATEMENT_SWITCH
-      statement_count += 1
       # find the instruction type that has been fixed to the variable being switched on
       variable = children[0].text
       i = variable_names.index(variable)
@@ -334,8 +327,9 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
       string << ", NULL);\n"
       created = true
     end
-    if created && statement_count > 1
+    if created && statement_count > 2
       string << '  statement_' << (statement_count - 1).to_s << '->next = statement_' << statement_count.to_s
+      statement_count += 1
     end
   end
 
@@ -347,8 +341,8 @@ end
 #
 def print_rule(rule, declarations)
   variables = get_variable_instructions(rule, declarations)
-  variable_instructions = variables[0]
-  variable_names = variables[1]
+  variable_names = variables[0]
+  variable_instructions = variables[1]
 
   signature_format = rule.children[0].text << ('_%s') * variable_instructions.size
 
@@ -388,7 +382,7 @@ def print_rule(rule, declarations)
       puts declarations_format % fixed
 
       # print the statements
-      puts build_statements_string(rule, declarations_count.to_s, variable_names, fixed.clone)
+      puts build_statements_string(rule, declarations_count, variable_names, fixed)
 
       # close off the method
       puts "}\n\n\n"
