@@ -70,14 +70,21 @@ has (ex: `istore x`) just rewrite that rule exactly in the statements.  That'll 
 instruction with the same argument.
 
 There are a few types of intructions:
-* `_jasmin_instr_  _argument_?` - Pure and simply jasmin instruction with a possible argument
-* `_declared_type_  _argument_?` - A set of possible instructions, each instruction must have
-the same number of arguments (if any)
-* `{_jasmin_instr | .. }  _argument_?` - An inlined instruction set.  Each instruction must have
-the same number of arguments (if any)
-* `[_#_]` - An instruction count, this can represent any instruction, though there must be exactly
-# of them.
-* `[*]` - Any number of instructions, should not be used at the end of a rule
+* `_jasmin_instr_  _argument_?`
+
+- Pure and simply jasmin instruction with a possible argument
+* `_declared_type_  _argument_?`
+
+- A set of possible instructions, each instruction must have the same number of arguments (if any)
+* `{_jasmin_instr | .. }  _argument_?`
+
+- An inlined instruction set.  Each instruction must have the same number of arguments (if any)
+* `[_#_]`
+
+- An instruction count, this can represent any instruction, though there must be exactly # of them.
+* `[*]` -
+
+Any number of instructions, should not be used at the end of a rule
 
 
 ### `STATEMENT`s: ###
