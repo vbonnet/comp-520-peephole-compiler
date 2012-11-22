@@ -262,9 +262,9 @@ def build_c_expression(expression)
   separator = ''
   case expression.type
   when T_INT
-    return expression.text
+    return expression.text + ', '
   when T_VARIABLE
-    return 'arg_' << expression.text
+    return 'arg_' << expression.text + ', '
   when EXPRESSION_ADD
     separator = ' + '
   when EXPRESSION_SUBTRACT
@@ -279,7 +279,31 @@ def build_c_expression(expression)
 
   children_strings = []
   expression.children.each { |child| children_strings += [build_c_expression(child)]}
-  return '(' << children_strings.join(separator) << ')'
+  return '(' << children_strings.join(separator) << '), '
+end
+
+def build_if_statement_string(if_statements, replace_count, variable_names, variable_types)
+  string = "\n"
+
+  first = true
+  if_statements.each do |stmt|
+    case stmt.type
+    when STATEMENT_IF
+      if first
+        string << '  '
+        first = false
+      else
+        string << ' else '
+      end
+      string << 'if (' << ") {\n"
+      string << build_statements_string(stmt, replace_count, variable_names, variable_types)
+      string << "  }"
+    when STATEMENT_ELSE
+      return string
+    end
+  end
+
+  return string
 end
 
 #
@@ -297,8 +321,12 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
     created = false
     case node.type
     when STATEMENT_INSTRUCTION
+      instruction_type = children[0].text
       string << "\n  CODE *statement_" << stmt_count.to_s << ' = makeCODE' << instruction_type << '('
-      string << ")\n;"
+      for i in 1...node.children.size do
+        string << build_c_expression(children[i])
+      end
+      string << "NULL);\n"
       created = true
     when STATEMENT_VARIABLE
       instr_name = children[0].text
@@ -323,8 +351,11 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
 
       string << "\n  CODE *statement_" << stmt_count.to_s << ' = makeCODE' << instruction_type << '('
       string << build_c_expression(expression) unless expression == nil
-      string << ", NULL);\n"
+      string << "NULL);\n"
       created = true
+    when STATEMENT_COMPOUND
+      # deal with if statements!
+      string << build_if_statement_string(children, replace_count, variable_names, variable_types)
     end
 
     if created && stmt_count > 2
