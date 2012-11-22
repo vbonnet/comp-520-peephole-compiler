@@ -139,7 +139,7 @@ end
 #
 #
 def declaration_string(name, next_instr)
-  s =  'CODE *' << name + ' = '
+  s = "\n  CODE *" << name + ' = '
   if (next_instr == '*c')
     s << next_instr << ";\n"
   else
@@ -155,62 +155,60 @@ def build_declarations_format(rule, declarations)
   include Peephole::TokenData
 
   format = ''
-
+  argument = nil
   instr_index = 1;
+  instr_count = 0;
   next_instr = '*c';
+
+  # sets the |argument| variable to be nil if |node| is nil, otherwise to the text contained within |node|
+  # this is set at this level because the variable is at the NAMED/UNNAMED level, but needs to tbe used
+  # at the INSTRUCTION level in order to get passed in the is_<inst>() method.
+  set_argument = lambda do |arg_node|
+    argument = (arg_node == nil) ? nil : arg_node.text
+    # print the argument declaration
+    format << '  int arg_' << argument << ";\n" if argument != nil
+  end
+
+  #
+  print_check_instruction = lambda do |instruction|
+    # print the instruction checking if statement
+    format << '  if (!is_' << instruction << '(' << next_instr
+    format << ", &arg_" << argument unless argument == nil
+    format << ")) {\n"
+    format << "    return 0;\n"
+    format << "  }\n"
+  end
+
   # block to be run up entering a parent node
   in_a_node = lambda do |node|
     children = node.children
+    instr_count += 1
 
     case node.type
     when NAMED_INSTRUCTION
       # print the instruciton declaration
       name =  'instr_' << children[0].text
-      format << '  ' << declaration_string(name, next_instr)
+      format << declaration_string(name, next_instr)
+      set_argument.call(children[2])
       instr_index += 1
     when UNNAMED_INSTRUCTION
       # number the isntruction and print the declaration
       name =  'instr_' << instr_index.to_s
-      format << '  ' << declaration_string(name, next_instr)
+      format << declaration_string(name, next_instr)
+      set_argument.call(children[1])
       instr_index += 1
     when INSTRUCTION
-      if declarations[children[0].text] == nil
-        # print the actual instruction name if available
-        instruction = children[0].text
-      else
-        # otherwise set is as variable to be hooked later
-        instruction = "%s"
-      end
-
-      argument = nil
-      if children[1] != nil
-        # get the arguments name if it exists
-        argument = 'arg_' << children[1].text
-        # print the argument declaration
-        format << '  int ' << argument << ";\n"
-      end
-
-      # print the instruction checking if statement
-      format << '  if (!is_' << instruction << '(' << next_instr
-      format << ", &" << argument unless argument == nil
-      format << ")) {\n"
-      format << "    return 0;\n  }"
+      instruction_variable = children[0].text
+      instruction = declarations.has_key?(instruction_variable) ? '%s' : instruction_variable
+      print_check_instruction.call(instruction)
+    when INSTRUCTION_SET
+      print_check_instruction.call("%s")
     else
       next
     end
   end
 
-  # code to be run when we exit a parent node
-  out_a_node = lambda do |node|
-    case node.type
-    when NAMED_INSTRUCTION, UNNAMED_INSTRUCTION, INSTRUCTION
-      format << "\n"
-    else
-      next
-    end
-  end
-
-  traverse(rule, in_a_node, out_a_node)
+  traverse(rule, in_a_node)
   return [format, (instr_index - 1).to_s]
 end
 
@@ -327,6 +325,7 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
       string << ", NULL);\n"
       created = true
     end
+
     if created && statement_count > 2
       string << '  statement_' << (statement_count - 1).to_s << '->next = statement_' << statement_count.to_s
       statement_count += 1
@@ -412,10 +411,32 @@ def print_c_code(tree)
   puts init_patterns
 end
 
-# MAIN
-ARGV.each do |arg|
-  f = open(arg)
-  parser = Peephole::Parser.new(f)
-  print_c_code(parser.start.tree)
+def generate(files)
+  files.each do |file|
+    parser = Peephole::Parser.new(open(file))
+    print_c_code(parser.start.tree)
+  end
 end
 
+# MAIN
+
+arguments = ARGV.clone
+
+mode = :generate
+option_found = false
+begin
+  if arguments.include?('-p')
+    mode = :print
+    arguments.delete('-p')
+  end
+end while option_found
+
+case mode
+when :generate
+  generate(arguments)
+when :print
+  arguments.each do |file|
+    parser = Peephole::Parser.new(open(file))
+    print_ast(parser.start.tree)
+  end
+end

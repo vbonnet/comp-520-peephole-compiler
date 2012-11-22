@@ -47,7 +47,7 @@ tokens {
   INSTRUCTION_SET;
   INSTRUCTION_COUNT;
 
-  /* INSTRUCTIONS */
+  /* STATEMENTS */
   STATEMENT_CASE;
   STATEMENT_SWITCH;
   STATEMENT_VARIABLE;
@@ -128,15 +128,15 @@ declaration
 /* INSTRUCTIONS */
 
 named_instruction
-  : instruction T_COLON name=T_VARIABLE
-      -> ^(NAMED_INSTRUCTION $name instruction)
-  | instruction
-      -> ^(UNNAMED_INSTRUCTION instruction)
+  : instruction  arg=T_VARIABLE? T_COLON name=T_VARIABLE
+      -> ^(NAMED_INSTRUCTION $name instruction $arg?)
+  | instruction  arg=T_VARIABLE?
+      -> ^(UNNAMED_INSTRUCTION instruction $arg?)
   ;
 
 instruction
-  : (instr=T_JASMIN_INSTRUCTION | instr=T_VARIABLE) arg=T_VARIABLE?
-      -> ^(INSTRUCTION $instr $arg?)
+  : (instr=T_JASMIN_INSTRUCTION | instr=T_VARIABLE)
+      -> ^(INSTRUCTION $instr)
   | T_L_BRACKET val=T_INT T_R_BRACKET
       -> ^(INSTRUCTION_COUNT $val)
   | T_L_BRACKET val=T_STAR T_R_BRACKET
