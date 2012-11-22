@@ -11,6 +11,11 @@ end
 require_relative 'grammar/PeepholeParser.rb'
 
 $c_methods = []
+$indent = 0
+
+def ind()
+  return '  ' * $indent
+end
 
 # Internal: Prints all methods that can be called on this objects.  Each of method is ont its own line.
 #
@@ -139,7 +144,7 @@ end
 #
 #
 def declaration_string(name, next_instr)
-  s = "\n  CODE *" << name + ' = '
+  s = "\n" << ind << 'CODE *' << name + ' = '
   if (next_instr == '*c')
     s << next_instr << ";\n"
   else
@@ -154,6 +159,7 @@ end
 def build_declarations_format(rule, declarations)
   include Peephole::TokenData
 
+  $indent += 1
   format = ''
   argument = nil
   instr_index = 1;
@@ -166,17 +172,17 @@ def build_declarations_format(rule, declarations)
   set_argument = lambda do |arg_node|
     argument = (arg_node == nil) ? nil : arg_node.text
     # print the argument declaration
-    format << '  int arg_' << argument << ";\n" if argument != nil
+    format << ind << 'int arg_' << argument << ";\n" if argument != nil
   end
 
   #
   print_check_instruction = lambda do |instruction|
     # print the instruction checking if statement
-    format << '  if (!is_' << instruction << '(' << next_instr
+    format << ind << 'if (!is_' << instruction << '(' << next_instr
     format << ", &arg_" << argument unless argument == nil
     format << ")) {\n"
-    format << "    return 0;\n"
-    format << "  }\n"
+    format << ind << "  return 0;\n"
+    format << ind << "}\n"
   end
 
   # block to be run up entering a parent node
@@ -209,6 +215,7 @@ def build_declarations_format(rule, declarations)
   end
 
   traverse(rule, in_a_node)
+  $indent -= 1
   return [format, (instr_index - 1).to_s]
 end
 
@@ -316,14 +323,14 @@ def build_if_statement_string(if_statements, replace_count, variable_names, vari
     case stmt.type
     when STATEMENT_IF
       if first
-        string << '  '
+        string << ind
         first = false
       else
         string << ' else '
       end
       string << 'if (' << build_c_condition(stmt.children[0]) << ") {\n"
       string << build_statements_string(stmt, replace_count, variable_names, variable_types)
-      string << "  }"
+      string << ind
     when STATEMENT_ELSE
       return string
     end
@@ -337,6 +344,7 @@ end
 def build_statements_string(rule, replace_count, variable_names, variable_types)
   include Peephole::TokenData
 
+  $indent += 1
   string = ''
   stmt_count = 1
 
@@ -348,7 +356,8 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
     case node.type
     when STATEMENT_INSTRUCTION
       instruction_type = children[0].text
-      string << "\n  CODE *statement_" << stmt_count.to_s << ' = makeCODE' << instruction_type << '('
+      string << "\n" << ind << 'CODE *statement_' << stmt_count.to_s
+      string<< ' = makeCODE' << instruction_type << '('
       for i in 1...node.children.size do
         string << build_c_expression(children[i]) + ', '
       end
@@ -356,7 +365,8 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
       created = true
     when STATEMENT_VARIABLE
       instr_name = children[0].text
-      string << "\n  CODE *statement_" << stmt_count.to_s << ' = copy(instr_' << instr_name << ");\n"
+      string << "\n" << ind << 'CODE *statement_' << stmt_count.to_s
+      string << ' = copy(instr_' << instr_name << ");\n"
       created = true
     when STATEMENT_SWITCH
       # find the instruction type that has been fixed to the variable being switched on
@@ -374,7 +384,8 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
 
       instruction_type = current_case.children[0].text
 
-      string << "\n  CODE *statement_" << stmt_count.to_s << ' = makeCODE' << instruction_type << '('
+      string << "\n" << ind << 'CODE *statement_' << stmt_count.to_s
+      string << ' = makeCODE' << instruction_type << '('
       for i in 1...current_case.children.size do
         string << build_c_expression(current_case.children[i]) + ', '
       end
@@ -387,17 +398,18 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
 
     if created
       if stmt_count > 2
-      string << '  statement_' << (stmt_count - 1).to_s << '->next = statement_' << stmt_count.to_s
+      string << ind << 'statement_' << (stmt_count - 1).to_s << '->next = statement_' << stmt_count.to_s
       end
       stmt_count += 1
     end
   end
 
   if stmt_count < 2
-    string << "\n  return 0;\n"
+    string << "\n" << ind << "return 0;\n"
   else
-    string << "\n" << '  return replace(c, ' << replace_count << ", statement_1);\n";
+    string << "\n" << ind << 'return replace(c, ' << replace_count << ", statement_1);\n";
   end
+  $indent -= 1
   return string
 end
 

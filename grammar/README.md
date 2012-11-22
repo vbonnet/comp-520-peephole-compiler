@@ -154,8 +154,6 @@ Example:
 
 Ohh boy!
 
-**the indentation is wrong.  /me cries**
-
 
 ## Grammar Style Guide ##
 ---------------------------
