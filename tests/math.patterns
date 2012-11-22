@@ -27,7 +27,7 @@ switch (hi) {
 
 RULE: pop_dup
 dup
-{istore | astore} : x
+{istore | astore} var : x
 pop
 -->
 x
