@@ -5,3 +5,6 @@
 # ignore ANTLR grammar output
 src/grammar
 *.tokens
+
+# ignore the hiddent tests directory
+tests/hidden
