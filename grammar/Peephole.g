@@ -145,10 +145,10 @@ declaration
 /* INSTRUCTIONS */
 
 named_instruction
-  : instruction  arg=T_VARIABLE? T_COLON name=T_VARIABLE
-      -> ^(NAMED_INSTRUCTION $name instruction $arg?)
-  | instruction  arg=T_VARIABLE?
-      -> ^(UNNAMED_INSTRUCTION instruction $arg?)
+  : instruction  arg=T_VARIABLE* T_COLON name=T_VARIABLE
+      -> ^(NAMED_INSTRUCTION $name instruction $arg*)
+  | instruction  arg=T_VARIABLE*
+      -> ^(UNNAMED_INSTRUCTION instruction $arg*)
   ;
 
 instruction
@@ -174,8 +174,8 @@ statement
   ;
 
 statement_no_switch
-  : instr=T_JASMIN_INSTRUCTION add_expression?
-      -> ^(STATEMENT_INSTRUCTION $instr add_expression?)
+  : instr=T_JASMIN_INSTRUCTION add_expression*
+      -> ^(STATEMENT_INSTRUCTION $instr add_expression*)
   | var=T_VARIABLE
       -> ^(STATEMENT_VARIABLE $var)
   | compound_if_statement
