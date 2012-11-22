@@ -90,6 +90,34 @@ There are a few types of intructions:
 ### `STATEMENT`s: ###
 =====================
 
+The statements are what will be created should the first half of the rule even match.  These are
+essentially a list of Jasmin instructions to create, except for the switch statement which is
+a set of possible jasmin instructions.  The actual set that will be created depends on the
+runtime type of the variable being switched upon.  This is done in the c code by simply creating
+a different method for each possible case.
+
+
+There are a few types of statements:
+
+`_jasmin_instruction_  _expression_?`
+  * This creates the corresponding Jasmin bytecode.  If an argument is present it should have been
+declared in the first half of this rule.  This will take the argument value (in the original
+bytecode) and use it for the newly created instruction.
+
+`_named_instruction_`
+  * A simple variable name, this variable must represent one of the named instructions.  It copies
+the entire intruction as it was in the original bytecode
+
+`switch (_named_instruction_) { ... }
+  * This takes a named instruction from the first half of the code and switches on the type of that
+instruction.  Each case will create a new c method in the output, the code generated for each type
+is based on the instruction list within the corresponding case.
+
+
+### `EXPRESSION`s ###
+=====================
+
+
 
 ## Output ##
 ------------
