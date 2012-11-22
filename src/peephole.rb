@@ -330,7 +330,7 @@ def build_if_statement_string(if_statements, replace_count, variable_names, vari
       end
       string << 'if (' << build_c_condition(stmt.children[0]) << ") {\n"
       string << build_statements_string(stmt, replace_count, variable_names, variable_types)
-      string << ind
+      string << ind << '}'
     when STATEMENT_ELSE
       return string
     end
