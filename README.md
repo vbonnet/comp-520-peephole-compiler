@@ -77,3 +77,15 @@ Go for it!  Submit a pull request, feel free.  We're working on our own stuff at
 write up feature requests but know they may not be addressed in what you may consider reasonable
 time.  Honestly you're better off just adding whatever you want yourself.  Bugs we will likely
 address in reasonable time seeing as we're using this ourselves.
+
+## Some Thoughts ##
+-------------------
+
+* The output isn't very user friendly yet, sorry about that.  This project is in the works, and thoug
+we'd love for it to be as clean as possible, getting it working is a priority at this point.
+* You can break the code, that's not really our main concern at this point.  If you want to confuse
+the compiler with complex brain-bending input, feel free.  Nobody's going to die if the program
+fails to compile something, so it's all cool.
+* The compiler isn't nice about telling you what's failing in the input.  I know that and would like
+to fix it eventually.  But for now, just use the compiler for those inputs that are convenient.  And
+for the rest, please tell us about them, or even better find the way to do it and send it by.
