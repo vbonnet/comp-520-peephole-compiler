@@ -7,6 +7,11 @@ implemenation relies on the instructions being alone on each line, and not seper
 one newline.  That's possibly a weakness of the language, but for now it's a design decision that's
 served us well.
 
+*Note* that the `ldc` Jamsin instructions have been split into `ldc_int` and `ldc_string`.  This is
+to 1) tell the compiler what you're loading 2) reflect the same split in `optimize.c`.  The `iconst`
+instruction also doesn't exist, it is subsumed into the `ldc_int` isntruction.  All other jasmin
+are declared nomally.
+
 There are two top level elements in the lanugage: `DECLARATION`s, and `RULE`s
 
 ### `DECLARATION`s: ###
