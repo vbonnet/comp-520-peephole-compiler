@@ -294,12 +294,12 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
   rule.children.each do |node|
     children = node.children
 
-    create = false
+    created = false
     case node.type
     when STATEMENT_INSTRUCTION
       string << "\n  CODE *statement_" << stmt_count.to_s << ' = makeCODE' << instruction_type << '('
       string << ")\n;"
-      create = true
+      created = true
     when STATEMENT_VARIABLE
       instr_name = children[0].text
       string << "\n  CODE *statement_" << stmt_count.to_s << ' = copy(instr_' << instr_name << ");\n"
