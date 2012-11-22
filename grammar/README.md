@@ -12,6 +12,10 @@ to 1) tell the compiler what you're loading 2) reflect the same split in `optimi
 instruction also doesn't exist, it is subsumed into the `ldc_int` isntruction.  All other jasmin
 are declared nomally.
 
+A few examples of this language can be found at
+[`tests/sample.pattern`](https://github.com/vbonnet/Peephole-Compiler/blob/master/sample.pattern).
+This contains the patterns given by the ` patterns.h` file but translated into this language.
+
 There are two top level elements in the lanugage: `DECLARATION`s, and `RULE`s
 
 ### `DECLARATION`s: ###
