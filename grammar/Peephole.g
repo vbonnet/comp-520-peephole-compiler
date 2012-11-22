@@ -72,7 +72,7 @@ T_JASMIN_INSTRUCTION
   | 'imul'          | 'idiv'
   | 'irem'          | 'iinc'
   | 'ineg'
-  | 'ifeq'          | 'ifneq'
+  | 'ifeq'          | 'ifne'
   | 'ifnull'        | 'ifnonnull'
   | 'if_acmpeq'     | 'if_acmpne'
   | 'if_icmpeq'     | 'if_icmpne'
