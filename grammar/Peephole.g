@@ -64,6 +64,12 @@ tokens {
   STATEMENT_COMPOUND;
   STATEMENT_INSTRUCTION;
 
+  /* CONDITIONS */
+  CONDITION_OR;
+  CONDITION_AND;
+  CONDITION_EQUAL;
+  CONDITION_NEQUAL;
+
   /* EXPRESSIONS */
   EXPRESSION_ADD;
   EXPRESSION_DIVIDE;
@@ -192,9 +198,8 @@ compound_if_statement
   ;
 
 if_statement
-  : T_IF T_L_PAREN condition T_R_PAREN T_L_BRACE T_NEWLINE
-    (stmts+=statement T_NEWLINE)* T_R_BRACE
-      -> ^(STATEMENT_IF $stmts*)
+  : T_IF T_L_PAREN cond=condition T_R_PAREN T_L_BRACE T_NEWLINE (stmts+=statement T_NEWLINE)* T_R_BRACE
+      -> ^(STATEMENT_IF $cond $stmts*)
   ;
 
 else_statement
@@ -205,16 +210,22 @@ else_statement
 /* CONDITIONS */
 
 condition
-  : or_condition (T_AND or_condition)*
+  /* or_condition (T_AND or_codntion)?  */
+  : (left=or_condition -> $left) (T_AND right=or_condition -> ^(CONDITION_AND $left $right?) )?
   ;
 
 or_condition
-  : atomic_condition (T_OR atomic_condition)*
+  /* atomic_condition (T_AND atomic_codntion)?  */
+  : (left=atomic_condition -> $left) (T_OR right=atomic_condition -> ^(CONDITION_OR $left $right?) )?
   ;
 
 atomic_condition
-  : (T_VARIABLE | T_INT) T_EQ (T_VARIABLE | T_INT)
-  | (T_VARIABLE | T_INT) T_NEQ (T_VARIABLE | T_INT)
+  : (left=T_VARIABLE | left=T_INT) T_EQ (right=T_VARIABLE | right=T_INT)
+      -> ^(CONDITION_EQUAL $left $right)
+  | (left=T_VARIABLE | left=T_INT) T_NEQ (right=T_VARIABLE | right=T_INT)
+      -> ^(CONDITION_NEQUAL $left $right)
+  | T_L_PAREN cond=condition T_R_PAREN
+      -> $cond
   ;
 
 /* EXPRESSIONS */
