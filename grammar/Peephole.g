@@ -56,9 +56,12 @@ tokens {
   INSTRUCTION_COUNT;
 
   /* STATEMENTS */
+  STATEMENT_IF;
   STATEMENT_CASE;
+  STATEMENT_ELSE;
   STATEMENT_SWITCH;
   STATEMENT_VARIABLE;
+  STATEMENT_COMPOUND;
   STATEMENT_INSTRUCTION;
 
   /* EXPRESSIONS */
@@ -169,7 +172,7 @@ statement_no_switch
       -> ^(STATEMENT_INSTRUCTION $instr add_expression?)
   | var=T_VARIABLE
       -> ^(STATEMENT_VARIABLE $var)
-  | if_statement
+  | compound_if_statement
   ;
 
 switch_statement
@@ -183,18 +186,20 @@ case_statement
       -> ^(STATEMENT_CASE $val $stmts*)
   ;
 
-if_statement
-  : T_IF T_L_PAREN condition T_R_PAREN T_L_BRACE T_NEWLINE
-    (statement T_NEWLINE)* T_R_BRACE else_if_statement?
+compound_if_statement
+  : stmts+=if_statement (T_ELSE stmts+=if_statement)* stmts+=else_statement?
+      -> ^(STATEMENT_COMPOUND $stmts+)
   ;
 
-else_if_statement
-  : T_ELSE if_statement
-  | else_statement
+if_statement
+  : T_IF T_L_PAREN condition T_R_PAREN T_L_BRACE T_NEWLINE
+    (stmts+=statement T_NEWLINE)* T_R_BRACE
+      -> ^(STATEMENT_IF $stmts*)
   ;
 
 else_statement
-  : T_ELSE T_L_BRACE T_NEWLINE (statement T_NEWLINE)*  T_R_BRACE
+  : T_ELSE T_L_BRACE T_NEWLINE (stmts+=statement T_NEWLINE)*  T_R_BRACE
+     -> ^(STATEMENT_ELSE $stmts*)
   ;
 
 /* CONDITIONS */
