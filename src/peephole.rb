@@ -262,9 +262,9 @@ def build_c_expression(expression)
   separator = ''
   case expression.type
   when T_INT
-    return expression.text + ', '
+    return expression.text
   when T_VARIABLE
-    return 'arg_' << expression.text + ', '
+    return 'arg_' << expression.text
   when EXPRESSION_ADD
     separator = ' + '
   when EXPRESSION_SUBTRACT
@@ -279,9 +279,35 @@ def build_c_expression(expression)
 
   children_strings = []
   expression.children.each { |child| children_strings += [build_c_expression(child)]}
-  return '(' << children_strings.join(separator) << '), '
+  return '(' << children_strings.join(separator) << ')'
 end
 
+#
+#
+def build_c_condition(condition)
+  separator = ''
+  case condition.type
+  when T_INT
+    return condition.text
+  when T_VARIABLE
+    return 'arg_' << condition.text
+  when CONDITION_EQUAL
+    separator = ' == '
+  when CONDITION_NEQUAL
+    separator = ' != '
+  when CONDITION_AND
+    separator = ' && '
+  when CONDITION_OR
+    separator = ' || '
+  end
+
+  children_strings = []
+  condition.children.each { |child| children_strings += [build_c_condition(child)]}
+  return '(' << children_strings.join(separator) << ')'
+end
+
+#
+#
 def build_if_statement_string(if_statements, replace_count, variable_names, variable_types)
   string = "\n"
 
@@ -295,7 +321,7 @@ def build_if_statement_string(if_statements, replace_count, variable_names, vari
       else
         string << ' else '
       end
-      string << 'if (' << ") {\n"
+      string << 'if (' << build_c_condition(stmt.children[0]) << ") {\n"
       string << build_statements_string(stmt, replace_count, variable_names, variable_types)
       string << "  }"
     when STATEMENT_ELSE
@@ -324,7 +350,7 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
       instruction_type = children[0].text
       string << "\n  CODE *statement_" << stmt_count.to_s << ' = makeCODE' << instruction_type << '('
       for i in 1...node.children.size do
-        string << build_c_expression(children[i])
+        string << build_c_expression(children[i]) + ', '
       end
       string << "NULL);\n"
       created = true
@@ -347,10 +373,11 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
       end
 
       instruction_type = current_case.children[0].text
-      expression = current_case.children[1]
 
       string << "\n  CODE *statement_" << stmt_count.to_s << ' = makeCODE' << instruction_type << '('
-      string << build_c_expression(expression) unless expression == nil
+      for i in 1...current_case.children.size do
+        string << build_c_expression(current_case.children[i]) + ', '
+      end
       string << "NULL);\n"
       created = true
     when STATEMENT_COMPOUND
@@ -358,13 +385,19 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
       string << build_if_statement_string(children, replace_count, variable_names, variable_types)
     end
 
-    if created && stmt_count > 2
+    if created
+      if stmt_count > 2
       string << '  statement_' << (stmt_count - 1).to_s << '->next = statement_' << stmt_count.to_s
+      end
       stmt_count += 1
     end
   end
 
-  string << "\n" << '  return replace(c, ' << replace_count << ", statement_1);\n";
+  if stmt_count < 2
+    string << "\n  return 0;\n"
+  else
+    string << "\n" << '  return replace(c, ' << replace_count << ", statement_1);\n";
+  end
   return string
 end
 
