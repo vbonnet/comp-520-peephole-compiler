@@ -9,21 +9,23 @@ served us well.
 
 There are two top level elements in the lanugage: `DECLARATION`s, and `RULE`s
 
-`DECLARATION`s:
+### `DECLARATION`s: ###
+=======================
 
 The language allows you to declare new instruction types that represent a set of Jasmin instructions
 and use those isntructions in the first half of the rule.  A c method will be generated for each
 instruction in the set.
 
-Format:
+#### Format: ####
 
     _name_ = { _jasmin_instr_1_ | _jasmin_instr_2_ | ... }
 
-Example:
+#### Example: ####
 
     add_sub = { iadd | isub }
 
-`RULE`s:
+### `RULE`s: ###
+================
 
 These are the part that will actually get compiled to c code.  They are comprised essentially of
 two large parts.  The first is the instructions, this is essentially the 'pattern match' to be
@@ -47,12 +49,12 @@ Format:
     ...
 
 
-`INSTRUCTION`s:
+### `INSTRUCTION`s: ###
+=======================
 
 
-
-`STATEMENT`s:
-
+### `STATEMENT`s: ###
+=====================
 
 
 ## Output ##
