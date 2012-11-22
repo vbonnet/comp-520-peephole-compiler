@@ -108,21 +108,49 @@ bytecode) and use it for the newly created instruction.
   * A simple variable name, this variable must represent one of the named instructions.  It copies
 the entire intruction as it was in the original bytecode
 
-`switch (_named_instruction_) { ... }
+`switch (_named_instruction_) { ... }`
   * This takes a named instruction from the first half of the code and switches on the type of that
 instruction.  Each case will create a new c method in the output, the code generated for each type
 is based on the instruction list within the corresponding case.
+
+`if (_condition_) { ... } `
+ * This statement conditions on the runtime value of an argument.  It can be used to check whether
+two arguments have the same value (x == x) or if one argument has a particular value (x == 1).
+More complex expressions can be written if need be.  **Note** this feature might not be in as clean
+as state as it should be.  Each branch in an if statement is assumed to return.  This shouldn't be
+correct but was the easiest way to code it for now.  Subject to change.
 
 
 ### `EXPRESSION`s ###
 =====================
 
+These allow you to take the runtime value of two arguments and add, subtract, divide, multiply, and
+modulo them.  This is used in statements in order to reuse or transform the values or arguments
+matched by the rule.
+
+Example:
+
+    (x + y + z) % z
+
+
+### `CONTIDION`s ###
+====================
+
+These allow you to condition on the runtime value of two arguments.  This is used in if statements
+to determine what instructions to used in replacement.
+
+Example:
+
+    (x != y)
+    (x == 1 || y == 1)
 
 
 ## Output ##
 ------------
 
 Ohh boy!
+
+**the indentation is wrong.  /me cries**
 
 
 ## Grammar Style Guide ##
