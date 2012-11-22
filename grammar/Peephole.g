@@ -32,6 +32,14 @@ tokens {
   T_SWITCH = 'switch';
   T_RULE   = 'RULE';
 
+  T_IF   = 'if';
+  T_ELSE = 'else';
+
+  T_AND = '&&';
+  T_OR  = '||';
+  T_EQ  = '==';
+  T_NEQ = '!=';
+
   /* AST NODES */
 
   /* TOP LEVEL NODES */
@@ -161,16 +169,47 @@ statement_no_switch
       -> ^(STATEMENT_INSTRUCTION $instr add_expression?)
   | var=T_VARIABLE
       -> ^(STATEMENT_VARIABLE $var)
+  | if_statement
   ;
 
 switch_statement
-  : T_SWITCH T_L_PAREN val=T_VARIABLE T_R_PAREN T_NEWLINE? T_L_BRACE T_NEWLINE case_statement+ T_R_BRACE
+  : T_SWITCH T_L_PAREN val=T_VARIABLE T_R_PAREN T_NEWLINE? T_L_BRACE T_NEWLINE
+    (case_statement T_NEWLINE)+ T_R_BRACE
       -> ^(STATEMENT_SWITCH $val case_statement+)
   ;
 
 case_statement
-  : val=T_JASMIN_INSTRUCTION T_COLON T_NEWLINE (stmts+=statement_no_switch T_NEWLINE)* T_SEMI_COLON T_NEWLINE
+  : val=T_JASMIN_INSTRUCTION T_COLON T_NEWLINE (stmts+=statement_no_switch T_NEWLINE)* T_SEMI_COLON
       -> ^(STATEMENT_CASE $val $stmts*)
+  ;
+
+if_statement
+  : T_IF T_L_PAREN condition T_R_PAREN T_L_BRACE T_NEWLINE
+    (statement T_NEWLINE)* T_R_BRACE else_if_statement?
+  ;
+
+else_if_statement
+  : T_ELSE if_statement
+  | else_statement
+  ;
+
+else_statement
+  : T_ELSE T_L_BRACE T_NEWLINE (statement T_NEWLINE)*  T_R_BRACE
+  ;
+
+/* CONDITIONS */
+
+condition
+  : or_condition (T_AND or_condition)*
+  ;
+
+or_condition
+  : atomic_condition (T_OR atomic_condition)*
+  ;
+
+atomic_condition
+  : (T_VARIABLE | T_INT) T_EQ (T_VARIABLE | T_INT)
+  | (T_VARIABLE | T_INT) T_NEQ (T_VARIABLE | T_INT)
   ;
 
 /* EXPRESSIONS */
