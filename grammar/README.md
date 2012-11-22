@@ -13,7 +13,7 @@ instruction also doesn't exist, it is subsumed into the `ldc_int` isntruction.  
 are declared nomally.
 
 A few examples of this language can be found at
-[`tests/sample.pattern`](https://github.com/vbonnet/Peephole-Compiler/blob/master/sample.pattern).
+[`tests/sample.pattern`](https://github.com/vbonnet/Peephole-Compiler/blob/master/tests/sample.pattern).
 This contains the patterns given by the ` patterns.h` file but translated into this language.
 
 There are two top level elements in the lanugage: `DECLARATION`s, and `RULE`s
