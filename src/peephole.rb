@@ -288,7 +288,7 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
   include Peephole::TokenData
 
   string = ''
-  statement_count = 1
+  stmt_count = 1
 
   # code run up entering a parent node
   rule.children.each do |node|
@@ -297,11 +297,12 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
     create = false
     case node.type
     when STATEMENT_INSTRUCTION
-      string << '  CODE *statement_' << statement_count << ' = makeCODE'  << instruction_type << '('
+      string << "\n  CODE *statement_" << stmt_count.to_s << ' = makeCODE' << instruction_type << '('
+      string << ")\n;"
       create = true
     when STATEMENT_VARIABLE
       instr_name = children[0].text
-      string << '  CODE *statement_' << statement_count.to_s << ' = instr_' << instr_name << ";\n"
+      string << "\n  CODE *statement_" << stmt_count.to_s << ' = copy(instr_' << instr_name << ");\n"
       created = true
     when STATEMENT_SWITCH
       # find the instruction type that has been fixed to the variable being switched on
@@ -320,15 +321,15 @@ def build_statements_string(rule, replace_count, variable_names, variable_types)
       instruction_type = current_case.children[0].text
       expression = current_case.children[1]
 
-      string << "\n  CODE *statement_" << statement_count.to_s << ' = makeCODE'  << instruction_type << '('
+      string << "\n  CODE *statement_" << stmt_count.to_s << ' = makeCODE' << instruction_type << '('
       string << build_c_expression(expression) unless expression == nil
       string << ", NULL);\n"
       created = true
     end
 
-    if created && statement_count > 2
-      string << '  statement_' << (statement_count - 1).to_s << '->next = statement_' << statement_count.to_s
-      statement_count += 1
+    if created && stmt_count > 2
+      string << '  statement_' << (stmt_count - 1).to_s << '->next = statement_' << stmt_count.to_s
+      stmt_count += 1
     end
   end
 
