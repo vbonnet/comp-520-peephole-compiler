@@ -1,0 +1,36 @@
+RULE: pop_dup
+dup
+{istore | astore} var : x
+pop
+-->
+x
+
+RULE: mult_by_one
+ldc_int x
+ldc_int y
+imul
+-->
+if (x == 1) {
+  ldc_int y
+} else if (y == 1) {
+  ldc_int x
+}
+
+RULE: mult_by_zero
+ldc_int x
+ldc_int y
+imul
+-->
+if (x == 0 || y == 0) {
+  ldc_int 0
+}
+
+RULE: positive_increment
+iload x
+ldc y
+iadd
+istore z
+-->
+if (x == y) {
+  iinc x y
+}
