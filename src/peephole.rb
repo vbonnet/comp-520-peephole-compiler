@@ -545,6 +545,12 @@ begin
   end
 end while option_found
 
+if arguments.empty?
+  $stderr.puts 'Usage:'
+  $stderr.puts "  ruby #{__FILE__} file1.patterns file2.patterns ..."
+  exit 1
+end
+
 case mode
 when :generate
   generate(arguments, use_stdout)
