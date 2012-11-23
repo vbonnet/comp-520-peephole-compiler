@@ -478,9 +478,19 @@ def print_rule(rule, declarations)
   set_variables.call([] * variable_instructions.size, 0)
 end
 
+# Internal: Prints the contents of the peephole_helpers.h file, meant to be
+# printed at the top of each generated file.
+#
+def print_c_helpers
+  helpers_file = File.dirname(__FILE__) + '/../peephole_helpers.h'
+  File.foreach(helpers_file) { |line| puts line }
+  puts # Extra empty line for separation
+end
+
 #
 #
 def print_c_code(tree)
+  print_c_helpers
   declarations = build_declaration_map(tree)
 
   include Peephole::TokenData

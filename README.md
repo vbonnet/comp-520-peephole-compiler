@@ -47,7 +47,7 @@ That should generate `PeepholeLexer.rb` and `PeepholeParser.rb` inside `src/gram
 
 You can run the code by simply running the command:
 
-    ruby src/peephole.rb tests/math.patterns
+    ruby src/peephole.rb tests/sample.pattern
 
 This currently prints to stdout (I recommend `[_command] > tests/math.h; emacs tests/math.h`) for now.
 It'll soon be printing to a file, just you wait.  This should generate valid c code (built around
@@ -55,7 +55,6 @@ optimize.c) for the file parsed.  The way to use the output is still bad atm, fi
 [`peephole_helpers.h`](https://github.com/vbonnet/Peephole-Compiler/blob/master/peephole_helpers.h)
 into your JOOS directory.  Then you add the following to your `patterns.h` file:
 
-    #include "peephole_helpers.h"
     #include "[_generate_file].h"
 
 Finally you have to rename `init_patterns()` in the generated file and then call it.  This part is
