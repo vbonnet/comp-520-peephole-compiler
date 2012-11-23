@@ -11,8 +11,8 @@ specifically for this compiler (explained more in
 The language is designed to resemble the [Jasmin](http://jasmin.sourceforge.net/) bytecode while
 still allow for the creation of complex patterns.  The output of the compiler is .h files that
 depend on the [optimize.c](http://www.cs.mcgill.ca/~cs520/2012/joos/a-/optimize.c) API.  To see how
-each statement and expression is transformed into c, or for an example output, see the
-[`output`](https://github.com/vbonnet/Peephole-Compiler/blob/master/output.md)) file
+each statement/expression is transformed into c, or for example output, see the
+[`output`](https://github.com/vbonnet/Peephole-Compiler/blob/master/output.md) file
 
 
 ## Dependencies ##

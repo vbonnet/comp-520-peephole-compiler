@@ -7,10 +7,10 @@ implementation relies on the instructions being alone on each line, and not sepa
 one newline.  That's possibly a weakness of the language, but for now it's a design decision that's
 served us well.
 
-**Note** that the `ldc` Jamsin instructions have been split into `ldc_int` and `ldc_string`.  This is
-to 1) tell the compiler what you're loading 2) reflect the same split in `optimize.c`.  The `iconst`
-instruction also doesn't exist, it is subsumed into the `ldc_int` instruction.  All other jasmin
-are declared normally.
+**Note** that the `ldc` Jamsin instructions have been split into `ldc_int` and `ldc_string`.  This
+is to 1) tell the compiler what you're loading 2) reflect the same split in `optimize.c`.  The
+`iconst` instruction also doesn't exist, it is subsumed into the `ldc_int` instruction.  All other
+jasmin are declared normally.
 
 A few examples of this language can be found at
 [`tests/sample.pattern`](https://github.com/vbonnet/Peephole-Compiler/blob/master/tests/sample.pattern).
@@ -85,7 +85,8 @@ There are a few types of instructions:
   * An inlined instruction set.  Each instruction must have the same number of arguments (if any)
 
 `[_#_]`
-  * An instruction count, this can represent any instruction, though there must be exactly # of them.
+  * An instruction count, this can represent any instruction, though there must be exactly # of
+    them.  **NOTE** this is ugly with labels.  Don't use unelss you're really sure about it.
 
 `[*]`
   * Any number of instructions, should not be used at the end of a rule
