@@ -27,10 +27,10 @@ if (x == 0 || y == 0) {
 
 RULE: positive_increment
 iload x
-ldc y
+ldc_int k
 iadd
-istore z
+istore y
 -->
-if (x == y) {
+if (x == y && 0 <= k && k <= 127) {
   iinc x y
 }
