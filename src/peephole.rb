@@ -306,6 +306,14 @@ def build_c_condition(condition)
     separator = ' && '
   when CONDITION_OR
     separator = ' || '
+  when CONDITION_LT
+    separator = ' < '
+  when CONDITION_GT
+    separator = ' > '
+  when CONDITION_LE
+    separator = ' <= '
+  when CONDITION_GT
+    separator = ' >= '
   end
 
   children_strings = []
