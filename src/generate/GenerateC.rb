@@ -11,7 +11,8 @@ module Peephole
       return '  ' * $indent
     end
 
-    # Public: Executes a depth fist traversal of a tree object and calls a function on each node as it is entered.
+    # Public: Executes a depth fist traversal of a tree object and calls a function on each node as
+    #         it is entered.
     #
     # tree - The ANTLR3::AST::BaseTree object to be traversed.
     # func - The function to call on each node.
@@ -27,10 +28,11 @@ module Peephole
     end
 
 
-    # Public: Executes a depth first traversal on a tree object and carries calls two functions for each node. First
-    #         |on_enter| is called with the current node as argument as we enter the node (ie before the children are
-    #         traversed.  Then |traverse| iterates on all children (in doing so calling |on_enter| and |on_exit| on all
-    #         children nodes).  Finally |on_exit| is called on the node.
+    # Public: Executes a depth first traversal on a tree object and carries calls two functions for
+    #         each node. First |on_enter| is called with the current node as argument as we enter
+    #         the node (ie before the children are traversed.  Then |traverse| iterates on all
+    #         children (in doing so calling |on_enter| and |on_exit| on all children nodes).
+    #         Finally |on_exit| is called on the node.
     #
     # tree     - The ANTLR3::AST::BaseTree object to be traversed.
     # on_enter - The function to call on each node on the way down the tree.
@@ -73,7 +75,8 @@ module Peephole
           # find the name of the newly declared variable
           name = declaration.children[0].text
 
-          # if two declarations have the same name throw an execption to be caught and show to the user
+          # if two declarations have the same name throw an execption to be caught and show to the
+          # user
           throw 'redeclaration of instruction set' if declaration_map[name] != nil
 
           # find the set of instructions associated with this declaration
@@ -114,9 +117,10 @@ module Peephole
       instr_count = 0;
       next_instr = '*c';
 
-      # sets the |argument| variable to be nil if |node| is nil, otherwise to the text contained within |node|
-      # this is set at this level because the variable is at the NAMED/UNNAMED level, but needs to be used
-      # at the INSTRUCTION level in order to get passed in the is_<inst>() method.
+      # sets the |argument| variable to be nil if |node| is nil, otherwise to the text contained
+      # within |node| this is set at this level because the variable is at the NAMED/UNNAMED level,
+      # but needs to be used at the INSTRUCTION level in order to get passed in the is_<inst>()
+      # method.
       set_argument = lambda do |arg_node|
         argument = (arg_node == nil) ? nil : arg_node.text
         # print the argument declaration
@@ -200,7 +204,7 @@ module Peephole
           set = Set.new
           line.children.each { |instr| set.add(instr.text) }
 
-          # add the set to |declarations|, add a new entry to |variable_instructions|, increment index
+          # add the set to |declarations|, add a new entry to |variable_instructions|, increment
           declarations[name] = set
           variable_instructions += [name]
           index += 1

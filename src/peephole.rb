@@ -12,7 +12,8 @@ require_relative 'generate/GenerateC.rb'
 
 module Peephole
 
-  # Internal: Prints all methods that can be called on this objects.  Each of method is ont its own line.
+  # Internal: Prints all methods that can be called on this objects.  Each of method is ont its own
+  #           line.
   #
   # obj - the object whose possible methods will be printed
   #
@@ -22,10 +23,11 @@ module Peephole
     puts obj.methods.sort.join("\n").to_s
   end
 
-  # Public: Executes a depth first traversal on a tree object and carries calls two functions for each node. First
-  #         |on_enter| is called with the current node as argument as we enter the node (ie before the children are
-  #         traversed.  Then |traverse| iterates on all children (in doing so calling |on_enter| and |on_exit| on all
-  #         children nodes).  Finally |on_exit| is called on the node.
+  # Public: Executes a depth first traversal on a tree object and carries calls two functions for
+  #         each node. First |on_enter| is called with the current node as argument as we enter the
+  #         node (ie before the children are traversed.  Then |traverse| iterates on all children
+  #         (in doing so calling |on_enter| and |on_exit| on all children nodes).  Finally |on_exit|
+  #         is called on the node.
   #
   # tree     - The ANTLR3::AST::BaseTree object to be traversed.
   # on_enter - The function to call on each node on the way down the tree.
@@ -63,8 +65,8 @@ module Peephole
   #
   # Example
   #
-  #   This assumes the variable |tree| has been loaded with an AST generated form the string "int_oper={iadd|isub}"
-  #   print(tree)
+  #   This assumes the variable |tree| has been loaded with an AST generated form the string
+  #   "int_oper={iadd|isub}" print(tree)
   #     # => "
   #   START  :(22)
   #   DECLARATION  :(24)
