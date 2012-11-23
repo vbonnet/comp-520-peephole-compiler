@@ -423,7 +423,8 @@ end
 
 #
 #
-def print_rule(rule, declarations)
+def build_rule(rule, declarations)
+  rule_code = ''
   variables = get_variable_instructions(rule, declarations)
   variable_names = variables[0]
   variable_instructions = variables[1]
@@ -457,59 +458,71 @@ def print_rule(rule, declarations)
       end
     else
       # print the signature
-      puts 'int ' << (signature_format % fixed) << "(CODE **c) {\n"
+      rule_code << 'int ' << (signature_format % fixed) << "(CODE **c) {\n"
 
       # store the method name so that we can print it in 'init_patterns' later
       $c_methods += [signature_format % fixed]
 
       # print the declarations
-      puts declarations_format % fixed
+      rule_code << declarations_format % fixed
 
       # print the statements
-      puts build_statements_string(rule, declarations_count, variable_names, fixed)
+      rule_code << build_statements_string(rule, declarations_count, variable_names, fixed)
 
       # close off the method
-      puts "}\n\n\n"
+      rule_code << "}\n\n\n"
     end
   end
 
   # call the block created above with an empty array (same size as |variable_instructions.size|)
   # start at index 0 so we get full coverage of the variable instructions.
   set_variables.call([] * variable_instructions.size, 0)
+  rule_code
 end
 
 # Internal: Prints the contents of the peephole_helpers.h file, meant to be
 # printed at the top of each generated file.
 #
-def print_c_helpers
+def build_c_helpers
   helpers_file = File.dirname(__FILE__) + '/../peephole_helpers.h'
-  File.foreach(helpers_file) { |line| puts line }
-  puts # Extra empty line for separation
+  helpers_code = ''
+  File.foreach(helpers_file) { |line| helpers_code << line }
+  helpers_code << "\n" # Extra empty line for separation
 end
 
 #
 #
-def print_c_code(tree)
-  print_c_helpers
+def build_c_code(tree)
+  c_code = ''
   declarations = build_declaration_map(tree)
 
   include Peephole::TokenData
   tree.children.each do |rule|
     if rule.type == RULE
-      print_rule(rule, declarations.clone)
+      c_code << build_rule(rule, declarations.clone)
     end
   end
 
-  init_patterns = "int init_patterns() {\n"
-  $c_methods.each { |m| init_patterns << '  ADD_PATTERN(' << m << ");\n" }
-  init_patterns << "  return 1;\n}\n"
-  puts init_patterns
+  c_code << "int init_patterns() {\n"
+  $c_methods.each { |m| c_code << '  ADD_PATTERN(' << m << ");\n" }
+  c_code << "  return 1;\n}\n"
 end
 
-def generate(files)
+def generate(files, use_stdout)
+  c_helpers = build_c_helpers
   files.each do |file|
     parser = Peephole::Parser.new(open(file))
-    print_c_code(parser.start.tree)
+    if use_stdout
+      puts c_helpers
+      puts build_c_code(parser.start.tree)
+    else
+      output_filename = File.basename(file.sub(/\.pat(?:terns?)?|\.peep(?:hole)?/, ''))
+      output_path = File.dirname(file) + '/' + output_filename + '.gen.c'
+      File.open(output_path, 'w') do |output_handle|
+        output_handle.puts c_helpers
+        output_handle.puts build_c_code(parser.start.tree)
+      end
+    end
   end
 end
 
@@ -518,17 +531,22 @@ end
 arguments = ARGV.clone
 
 mode = :generate
+use_stdout = false
 option_found = false
 begin
   if arguments.include?('-p')
     mode = :print
     arguments.delete('-p')
   end
+  if arguments.include?('-s')
+    use_stdout = true
+    arguments.delete('-s')
+  end
 end while option_found
 
 case mode
 when :generate
-  generate(arguments)
+  generate(arguments, use_stdout)
 when :print
   arguments.each do |file|
     parser = Peephole::Parser.new(open(file))

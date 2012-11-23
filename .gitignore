@@ -6,5 +6,8 @@
 src/grammar
 *.tokens
 
-# ignore the hiddent tests directory
+# ignore the hidden tests directory
 tests/hidden
+
+# ignore generated C files
+*.gen.c
