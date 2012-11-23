@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+exec ruby "`dirname "${BASH_SOURCE[0]}"`/src/peephole.rb" "$@"

@@ -47,7 +47,7 @@ That should generate `PeepholeLexer.rb` and `PeepholeParser.rb` inside `src/gram
 
 You can run the code by simply running the command:
 
-    ./src/peephole.rb tests/sample.pattern
+    ./peephole tests/sample.pattern
 
 This currently prints to stdout (I recommend `[_command] > tests/math.h; emacs tests/math.h`) for now.
 It'll soon be printing to a file, just you wait.  This should generate valid c code (built around
