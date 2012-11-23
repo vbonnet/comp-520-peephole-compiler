@@ -69,16 +69,25 @@ Then you have to call the new patterns.  Each generated file adds it's own patte
 named `init_patterns_<_generate_file_>()`.  You have to call that method from within `pattern.h`'s
 `init_patterns()`.
 
-ie. if you compiled the provided `sample.pattern`, your `init_patterns()` should look like:
+ie. if you compiled the provided `sample.pattern`, your `patterns.h` should contain
 ~~~~ c
+#include "sample.gen.h"
+
+...
+
 int init_patterns() {
-... patterns...
+  ... patterns...
 
-init_patterns_sample();
+  init_patterns_sample();
 
-return 1;
+  return 1;
 }
 ~~~~
+
+Remember also to include these headers into your `Makefile`.  Otherwise when you make your project
+it will not recompiler if only those files have changed.
+
+Step 4: profit!!!  Best of luck.
 
 ## Style guides ##
 ------------------
