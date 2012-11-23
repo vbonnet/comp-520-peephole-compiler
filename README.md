@@ -55,7 +55,7 @@ optimize.c) for the file parsed.  The way to use the output is still bad atm, fi
 [`peephole_helpers.h`](https://github.com/vbonnet/Peephole-Compiler/blob/master/peephole_helpers.h)
 into your JOOS directory.  Then you add the following to your `patterns.h` file:
 
-    #include "[_generate_file].h"
+    #include "[generated_file].gen.h"
 
 Finally you have to rename `init_patterns()` in the generated file and then call it.  This part is
 particularly ugly and will be fixed soon.

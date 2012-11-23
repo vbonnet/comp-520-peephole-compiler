@@ -517,7 +517,7 @@ def generate(files, use_stdout)
       puts build_c_code(parser.start.tree)
     else
       output_filename = File.basename(file.sub(/\.patterns?|\.peep(?:hole)?/, ''))
-      output_path = File.dirname(file) + '/' + output_filename + '.gen.c'
+      output_path = File.dirname(file) + '/' + output_filename + '.gen.h'
       File.open(output_path, 'w') do |output_handle|
         output_handle.puts c_helpers
         output_handle.puts build_c_code(parser.start.tree)

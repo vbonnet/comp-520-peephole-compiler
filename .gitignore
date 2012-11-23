@@ -9,5 +9,5 @@ src/grammar
 # ignore the hidden tests directory
 tests/hidden
 
-# ignore generated C files
-*.gen.c
+# ignore generated C and H files
+*.gen.[ch]
