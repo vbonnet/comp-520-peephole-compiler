@@ -37,7 +37,7 @@ The first step in installation is to install the actual repo.
 The repo comes with the ANTLR code inside the `lib/` directory.  However the Ruby target requires
 some ruby code not included with the project.  To download this code simply run
 
-    gem install antlr3
+    [sudo] gem install antlr3
 
 Now you're set to go!  To generate the Lexer+Parser simply run: (There will be a Makefile later, I'm
 just lazy)
@@ -61,20 +61,24 @@ have to move
 [`peephole_helpers.h`](https://github.com/vbonnet/Peephole-Compiler/blob/master/peephole_helpers.h)
 into your JOOS directory.  Then you add the following to your `patterns.h` file:
 
-    #include "_generated_file_.gen.h"
+~~~~ c
+#include "_generated_file_.gen.h"
+~~~~
 
 Then you have to call the new patterns.  Each generated file adds it's own patterns in a method
 named `init_patterns_<_generate_file_>()`.  You have to call that method from within `pattern.h`'s
-`init_patterns()`.  ie. if you compiled the provided `sample.pattern`, your `init_patterns()` should
-look like:
+`init_patterns()`.
 
-    int init_patterns() {
-      ... patterns...
+ie. if you compiled the provided `sample.pattern`, your `init_patterns()` should look like:
+~~~~ c
+int init_patterns() {
+... patterns...
 
-      init_patterns_sample();
+init_patterns_sample();
 
-      return 1;
-    }
+return 1;
+}
+~~~~
 
 ## Style guides ##
 ------------------
