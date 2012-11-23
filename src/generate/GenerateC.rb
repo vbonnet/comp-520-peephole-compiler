@@ -443,7 +443,7 @@ module Peephole
 
     #
     #
-    def build_c_code(tree)
+    def build_c_code(tree, file_name)
       c_code = ''
       declarations = build_declaration_map(tree)
       tree.children.each do |rule|
@@ -452,7 +452,8 @@ module Peephole
         end
       end
 
-      c_code << "int init_patterns() {\n"
+      base_name = /([^\.]+)/.match(File.basename(file_name))
+      c_code << "int init_patterns_#{base_name}() {\n"
       $c_methods.each { |m| c_code << '  ADD_PATTERN(' << m << ");\n" }
       c_code << "  return 1;\n}\n"
     end
@@ -461,17 +462,18 @@ module Peephole
     #
     def generate(files, use_stdout)
       c_helpers = build_c_helpers
-      files.each do |file|
-        parser = Peephole::Parser.new(open(file))
+      files.each do |file_name|
+        parser = Peephole::Parser.new(open(file_name))
+        tree = parser.start.tree
         if use_stdout
           puts c_helpers
-          puts build_c_code(parser.start.tree)
+          puts build_c_code(tree)
         else
-          output_filename = File.basename(file.sub(/\.patterns?|\.peep(?:hole)?/, ''))
-          output_path = File.dirname(file) + '/' + output_filename + '.gen.h'
+          output_filename = File.basename(file_name.sub(/\.patterns?|\.peep(?:hole)?/, ''))
+          output_path = File.dirname(file_name) + '/' + output_filename + '.gen.h'
           File.open(output_path, 'w') do |output_handle|
             output_handle.puts c_helpers
-            output_handle.puts build_c_code(parser.start.tree)
+            output_handle.puts build_c_code(tree, file_name)
           end
           $stderr.puts "Generated #{output_path}"
         end

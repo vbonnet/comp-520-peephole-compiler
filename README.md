@@ -61,11 +61,20 @@ have to move
 [`peephole_helpers.h`](https://github.com/vbonnet/Peephole-Compiler/blob/master/peephole_helpers.h)
 into your JOOS directory.  Then you add the following to your `patterns.h` file:
 
-    #include "[generated_file].gen.h"
+    #include "_generated_file_.gen.h"
 
-Finally you have to rename `init_patterns()` in the generated file and then call it.  This part is
-particularly ugly and will be fixed soon.
+Then you have to call the new patterns.  Each generated file adds it's own patterns in a method
+named `init_patterns_<_generate_file_>()`.  You have to call that method from within `pattern.h`'s
+`init_patterns()`.  ie. if you compiled the provided `sample.pattern`, your `init_patterns()` should
+look like:
 
+    int init_patterns() {
+      ... patterns...
+
+      init_patterns_sample();
+
+      return 1;
+    }
 
 ## Style guides ##
 ------------------
