@@ -218,7 +218,7 @@ else_statement
 /* CONDITIONS */
 
 condition
-  /* or_condition (T_AND or_codition)*  */
+  /* or_condition (T_AND or_condition)*  */
   : (exp+=or_condition -> $exp) ((T_AND exp+=or_condition)+ -> ^(CONDITION_AND $exp+))?
   ;
 
