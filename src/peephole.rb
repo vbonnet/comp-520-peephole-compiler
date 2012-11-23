@@ -516,7 +516,7 @@ def generate(files, use_stdout)
       puts c_helpers
       puts build_c_code(parser.start.tree)
     else
-      output_filename = File.basename(file.sub(/\.pat(?:terns?)?|\.peep(?:hole)?/, ''))
+      output_filename = File.basename(file.sub(/\.patterns?|\.peep(?:hole)?/, ''))
       output_path = File.dirname(file) + '/' + output_filename + '.gen.c'
       File.open(output_path, 'w') do |output_handle|
         output_handle.puts c_helpers
@@ -547,15 +547,30 @@ end while option_found
 
 if arguments.empty?
   $stderr.puts 'Usage:'
-  $stderr.puts "  ruby #{__FILE__} file1.patterns file2.patterns ..."
+  $stderr.puts "  ruby #{__FILE__} dir_or_file1 dir_or_file2 ..."
+  $stderr.puts # Blank line
+  $stderr.puts 'When a directory is given, files ending with the following extensions'
+  $stderr.puts 'will be processed:'
+  $stderr.puts '  .peep  .peephole  .pattern  .patterns'
   exit 1
+end
+
+# Expand directory arguments to individual files
+expanded_arguments = []
+arguments.each do |argument|
+  argument = '.' if argument.empty? # Avoid having the pattern match the filesystem root
+  if File.directory?(argument)
+     expanded_arguments.concat(Dir[argument + '/**/*.{peep,peephole,pattern,patterns}'])
+  else
+    expanded_arguments << argument
+  end
 end
 
 case mode
 when :generate
-  generate(arguments, use_stdout)
+  generate(expanded_arguments, use_stdout)
 when :print
-  arguments.each do |file|
+  expanded_arguments.each do |file|
     parser = Peephole::Parser.new(open(file))
     print_ast(parser.start.tree)
   end
