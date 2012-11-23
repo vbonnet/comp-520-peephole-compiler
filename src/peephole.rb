@@ -522,6 +522,7 @@ def generate(files, use_stdout)
         output_handle.puts c_helpers
         output_handle.puts build_c_code(parser.start.tree)
       end
+      $stderr.puts "Generated #{output_path}"
     end
   end
 end
