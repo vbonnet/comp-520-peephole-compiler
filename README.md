@@ -12,8 +12,8 @@ creation of complex patterns.  The output of the compiler is .c files that depen
 [optimize.c](http://www.cs.mcgill.ca/~cs520/2012/joos/a-/optimize.c) API.
 
 
-## Dependendices ##
--------------------
+## Dependencies ##
+------------------
 
 This project uses [ANTLR](http://antlr.org/) for its parser generator.  ANTLR provides many target languages, this
 project is using the [Ruby target](http://antlr.ohboyohboyohboy.org/) for ANTLR.  The docs for the code generated
@@ -81,7 +81,7 @@ address in reasonable time seeing as we're using this ourselves.
 ## Some Thoughts ##
 -------------------
 
-* The output isn't very user friendly yet, sorry about that.  This project is in the works, and thoug
+* The output isn't very user friendly yet, sorry about that.  This project is in the works, and though
 we'd love for it to be as clean as possible, getting it working is a priority at this point.
 * You can break the code, that's not really our main concern at this point.  If you want to confuse
 the compiler with complex brain-bending input, feel free.  Nobody's going to die if the program

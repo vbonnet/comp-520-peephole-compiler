@@ -3,26 +3,26 @@
 
 This language is built to be a somewhat visiual language; it is meant to resemble an actual Jasmin
 bytecode sequence. Note that the language is not newline agnostic.  Unfortunately our current
-implemenation relies on the instructions being alone on each line, and not seperated by more than
+implementation relies on the instructions being alone on each line, and not separated by more than
 one newline.  That's possibly a weakness of the language, but for now it's a design decision that's
 served us well.
 
 **Note** that the `ldc` Jamsin instructions have been split into `ldc_int` and `ldc_string`.  This is
 to 1) tell the compiler what you're loading 2) reflect the same split in `optimize.c`.  The `iconst`
-instruction also doesn't exist, it is subsumed into the `ldc_int` isntruction.  All other jasmin
-are declared nomally.
+instruction also doesn't exist, it is subsumed into the `ldc_int` instruction.  All other jasmin
+are declared normally.
 
 A few examples of this language can be found at
 [`tests/sample.pattern`](https://github.com/vbonnet/Peephole-Compiler/blob/master/tests/sample.pattern).
 This contains the patterns given by the ` patterns.h` file but translated into this language.
 
-There are two top level elements in the lanugage: `DECLARATION`s, and `RULE`s
+There are two top level elements in the language: `DECLARATION`s, and `RULE`s
 
 ### `DECLARATION`s: ###
 =======================
 
 The language allows you to declare new instruction types that represent a set of Jasmin instructions
-and use those isntructions in the first half of the rule.  A c method will be generated for each
+and use those instructions in the first half of the rule.  A C method will be generated for each
 instruction in the set.
 
 #### Format: ####
@@ -62,9 +62,9 @@ Format:
 =======================
 
 Instructions are the pattern matching half of the rules.  Each line represents a single instruction
-that should be seen in order for the rule to be actived.  Every instruction line can be named, this
-is done by adding ': _name_' after the line.  This allows entire lines to be used in the statements
-half of the rule without knowing at compile-time what the contents of the rule are.
+that should be seen in order for the rule to be activated.  Every instruction line can be named,
+this is done by adding `: _name_` after the line.  This allows entire lines to be used in the
+statements half of the rule without knowing at compile-time what the contents of the rule are.
 
 **NOTE** Only variable sets should be named.  The grammar allows for any instruction to be named,
 but this could break things in subtle (or not so subtle) ways.  The actual instruction for a named
@@ -73,7 +73,7 @@ instruction count.  If you want to reuse a fixed instruction with the same argum
 has (ex: `istore x`) just rewrite that rule exactly in the statements.  That'll create a new
 instruction with the same argument.
 
-There are a few types of intructions:
+There are a few types of instructions:
 
 `_jasmin_instr_  _argument_?`
   * Pure and simply jasmin instruction with a possible argument
@@ -110,7 +110,7 @@ bytecode) and use it for the newly created instruction.
 
 `_named_instruction_`
   * A simple variable name, this variable must represent one of the named instructions.  It copies
-the entire intruction as it was in the original bytecode
+the entire instruction as it was in the original bytecode.
 
 `switch (_named_instruction_) { ... }`
   * This takes a named instruction from the first half of the code and switches on the type of that
@@ -137,7 +137,7 @@ Example:
     (x + y + z) % z
 
 
-### `CONTIDION`s ###
+### `CONDITION`s ###
 ====================
 
 These allow you to condition on the runtime value of two arguments.  This is used in if statements
@@ -162,6 +162,6 @@ These things, they take time.
 
 ## Some Thoughts ##
 -------------------
-* You can't nest instruction sets, and honesly you shouldn't able to... so there
+* You can't nest instruction sets, and honestly you shouldn't able to... so there
 * We don't enforce that names are unique yet, please just make the unique within the context
-(the rule, or declarations).  The progam will likely run, it just won't generate what you want
+(the rule, or declarations).  The program will likely run, it just won't generate what you want

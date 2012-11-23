@@ -123,7 +123,7 @@ def build_declaration_map(tree)
       # find the name of the newly declared variable
       name = declaration.children[0].text
 
-      # if two declarations have the same name throw an execptio to  be caught and show to the user
+      # if two declarations have the same name throw an execption to be caught and show to the user
       throw 'redeclaration of instruction set' if declaration_map[name] != nil
 
       # find the set of instructions associated with this declaration
@@ -167,7 +167,7 @@ def build_declarations_format(rule, declarations)
   next_instr = '*c';
 
   # sets the |argument| variable to be nil if |node| is nil, otherwise to the text contained within |node|
-  # this is set at this level because the variable is at the NAMED/UNNAMED level, but needs to tbe used
+  # this is set at this level because the variable is at the NAMED/UNNAMED level, but needs to be used
   # at the INSTRUCTION level in order to get passed in the is_<inst>() method.
   set_argument = lambda do |arg_node|
     argument = (arg_node == nil) ? nil : arg_node.text
@@ -441,15 +441,15 @@ def print_rule(rule, declarations)
   # the possible instructions.  Then it recurses on the (unset) right hand side of the array.
   # Once all those have been completed it fixes a different instruction to the current variable.
   # In doing so we cover all possible combinations of instructions, and at each level we print
-  # the funtion.  This is done inplace (|fixed| is never copied) which means we don't have to deal
-  # with crazy space complexity.
+  # the function.  This is done in-place (|fixed| is never copied) which means we don't have to
+  # deal with crazy space complexity.
   set_variables = lambda do |fixed, i|
     if i < variable_instructions.size
       # figure out which variable we should be setting
       variable = variable_instructions[i]
       declarations[variable].each do |instr|
         # for each possible instruction, set it and recurse on the right hand of the list
-        # note that we can simply set this variable (insteaad of copying the entire list)
+        # note that we can simply set this variable (instead of copying the entire list)
         # since we'll overwrite it when the recursion ends and we return here
         # in order for this we must not change to original list (|variable_instructions|)
         fixed[i] = instr
