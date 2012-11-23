@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-java -jar lib/antlr.jar -o src/ grammar/Peephole.g
+cd "`dirname "$0"`"
+
+exec java -jar lib/antlr.jar -o src/ grammar/Peephole.g
