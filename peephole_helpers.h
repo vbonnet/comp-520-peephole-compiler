@@ -1,3 +1,6 @@
+#ifndef PEEPHOLE_HELPERS_H
+#define PEEPHOLE_HELPERS_H
+
 CODE *copy(CODE *original) {
   CODE *c;
   c = NEW(CODE);
@@ -6,3 +9,5 @@ CODE *copy(CODE *original) {
   c->next = NULL;
   return c;
 }
+
+#endif // PEEPHOLE_HELPERS_H
