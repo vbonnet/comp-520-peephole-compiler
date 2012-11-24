@@ -4,11 +4,8 @@ module Peephole
   class GenerateC
     include Peephole::TokenData
 
-    $c_methods = []
-    $indent = 0
-
     def ind()
-      return '  ' * $indent
+      return '  ' * @indent
     end
 
     # Public: Executes a depth fist traversal of a tree object and calls a function on each node as
@@ -110,7 +107,7 @@ module Peephole
     #
     #
     def build_declarations_format(rule, declarations)
-      $indent += 1
+      @indent += 1
       format = ''
       argument = nil
       instr_index = 1;
@@ -161,13 +158,15 @@ module Peephole
           print_check_instruction.call(instruction)
         when INSTRUCTION_SET
           print_check_instruction.call("%s")
+         when INSTRUCTION_COUNT
+          format << "#{ind}if (#{next_instr} == NULL) {\n#{ind}  return 0;\n#{ind}}\n"
         else
           next
         end
       end
 
       traverse(rule, in_a_node)
-      $indent -= 1
+      @indent -= 1
       return [format, (instr_index - 1).to_s]
     end
 
@@ -303,7 +302,7 @@ module Peephole
     #
     def build_statements_string(rule, replace_count, variable_names, variable_types)
 
-      $indent += 1
+      @indent += 1
       string = ''
       stmt_count = 1
 
@@ -368,7 +367,7 @@ module Peephole
       else
         string << "\n" << ind << 'return replace(c, ' << replace_count << ", statement_1);\n";
       end
-      $indent -= 1
+      @indent -= 1
       return string
     end
 
@@ -412,7 +411,7 @@ module Peephole
           rule_code << 'int ' << (signature_format % fixed) << "(CODE **c) {\n"
 
           # store the method name so that we can print it in 'init_patterns' later
-          $c_methods += [signature_format % fixed]
+          @c_methods += [signature_format % fixed]
 
           # print the declarations
           rule_code << declarations_format % fixed
@@ -454,7 +453,7 @@ module Peephole
 
       base_name = /([^\.]+)/.match(File.basename(file_name))
       c_code << "int init_patterns_#{base_name}() {\n"
-      $c_methods.each { |m| c_code << '  ADD_PATTERN(' << m << ");\n" }
+      @c_methods.each { |m| c_code << '  ADD_PATTERN(' << m << ");\n" }
       c_code << "  return 1;\n}\n"
     end
 
@@ -463,6 +462,9 @@ module Peephole
     def generate(files, use_stdout)
       c_helpers = build_c_helpers
       files.each do |file_name|
+        @c_methods = []
+        @indent = 0
+
         parser = Peephole::Parser.new(open(file_name))
         tree = parser.start.tree
         if use_stdout
