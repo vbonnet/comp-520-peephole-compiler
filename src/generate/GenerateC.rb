@@ -355,16 +355,14 @@ module Peephole
         end
 
         if created
-          if stmt_count > 2
-          string << ind << 'statement_' << (stmt_count - 1).to_s << '->next = statement_' << stmt_count.to_s
+          if stmt_count > 1
+            string << ind << 'statement_' << (stmt_count - 1).to_s << '->next = statement_' << stmt_count.to_s
           end
           stmt_count += 1
         end
       end
 
       if stmt_count == 1
-        string << "\n#{ind}return 0;\n"
-      elsif stmt_count == 2
         string << "\n#{ind}return replace(c, #{replace_count}, NULL);\n"
       else
         string << "\n#{ind}return replace(c, #{replace_count}, statement_1);\n"
