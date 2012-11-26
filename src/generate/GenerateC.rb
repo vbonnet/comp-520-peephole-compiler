@@ -295,6 +295,7 @@ module Peephole
         end
       end
 
+      string << " else {\n#{ind}  return 0;\n#{ind}}"
       return string
     end
 
