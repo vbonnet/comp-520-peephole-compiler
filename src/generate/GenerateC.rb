@@ -1,4 +1,4 @@
-require_relative 'grammar/PeepholeParser.rb'
+require_relative '../grammar/PeepholeParser.rb'
 
 module Peephole
   class GenerateC
