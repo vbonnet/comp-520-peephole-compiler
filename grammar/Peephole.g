@@ -115,7 +115,7 @@ T_JASMIN_INSTRUCTION
   | 'invokevirtual' | 'invokenonvirtual'
   ;
 
-T_INT : '0'..'9'+;
+T_INT : '-'?('0'..'9')+;
 T_NEWLINE : '\r'? '\n' ;
 T_VARIABLE : ('_'|'a'..'z'|'A'..'Z')+;
 
