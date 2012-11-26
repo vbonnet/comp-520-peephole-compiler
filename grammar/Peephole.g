@@ -153,9 +153,9 @@ declaration
 /* INSTRUCTIONS */
 
 named_instruction
-  : instruction  arg=T_VARIABLE* T_COLON name=T_VARIABLE
+  : instruction  (arg+=T_VARIABLE)* T_COLON name=T_VARIABLE
       -> ^(NAMED_INSTRUCTION $name instruction $arg*)
-  | instruction  arg=T_VARIABLE*
+  | instruction  (arg+=T_VARIABLE)*
       -> ^(UNNAMED_INSTRUCTION instruction $arg*)
   ;
 

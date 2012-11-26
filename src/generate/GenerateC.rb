@@ -109,7 +109,7 @@ module Peephole
     def build_declarations_format(rule, declarations)
       @indent += 1
       format = ''
-      argument = nil
+      argument_string = ''
       instr_index = 1;
       instr_count = 0;
       next_instr = '*c';
@@ -118,20 +118,23 @@ module Peephole
       # within |node| this is set at this level because the variable is at the NAMED/UNNAMED level,
       # but needs to be used at the INSTRUCTION level in order to get passed in the is_<inst>()
       # method.
-      set_argument = lambda do |arg_node|
-        argument = (arg_node == nil) ? nil : arg_node.text
-        # print the argument declaration
-        format << ind << 'int arg_' << argument << ";\n" if argument != nil
+      set_argument = lambda do |args|
+        argument_string = ''
+        args.each do |arg_node|
+          if arg_node != nil
+            argument_string << ", &arg_#{arg_node.text}"
+            # print the argument declaration
+            format << "#{ind}int arg_#{arg_node.text};\n"
+          end
+        end
       end
 
       #
       print_check_instruction = lambda do |instruction|
         # print the instruction checking if statement
-        format << ind << 'if (!is_' << instruction << '(' << next_instr
-        format << ", &arg_" << argument unless argument == nil
-        format << ")) {\n"
-        format << ind << "  return 0;\n"
-        format << ind << "}\n"
+        format << "#{ind}if (!is_#{instruction}(#{next_instr}#{argument_string})) {\n"
+        format << "#{ind}  return 0;\n"
+        format << "#{ind}}\n"
       end
 
       # block to be run up entering a parent node
@@ -144,13 +147,13 @@ module Peephole
           # print the instruciton declaration
           name =  'instr_' << children[0].text
           format << declaration_string(name, next_instr)
-          set_argument.call(children[2])
+          set_argument.call(children[2...node.children.size])
           instr_index += 1
         when UNNAMED_INSTRUCTION
           # number the isntruction and print the declaration
           name =  'instr_' << instr_index.to_s
           format << declaration_string(name, next_instr)
-          set_argument.call(children[1])
+          set_argument.call(children[1...node.children.size])
           instr_index += 1
         when INSTRUCTION
           instruction_variable = children[0].text
