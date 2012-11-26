@@ -362,10 +362,12 @@ module Peephole
         end
       end
 
-      if stmt_count < 2
-        string << "\n" << ind << "return 0;\n"
+      if stmt_count == 1
+        string << "\n#{ind}return replace(c, #{replace_count}, NULL);\n"
+      elsif stmt_count == 2
+        string << "\n#{ind}return 0;\n"
       else
-        string << "\n" << ind << 'return replace(c, ' << replace_count << ", statement_1);\n";
+        string << "\n#{ind}return replace(c, #{replace_count}, statement_1);\n"
       end
       @indent -= 1
       return string
