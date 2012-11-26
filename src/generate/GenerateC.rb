@@ -1,4 +1,4 @@
-require_relative '../grammar/PeepholeParser.rb'
+require_relative 'grammar/PeepholeParser.rb'
 
 module Peephole
   class GenerateC
@@ -363,9 +363,9 @@ module Peephole
       end
 
       if stmt_count == 1
-        string << "\n#{ind}return replace(c, #{replace_count}, NULL);\n"
-      elsif stmt_count == 2
         string << "\n#{ind}return 0;\n"
+      elsif stmt_count == 2
+        string << "\n#{ind}return replace(c, #{replace_count}, NULL);\n"
       else
         string << "\n#{ind}return replace(c, #{replace_count}, statement_1);\n"
       end
