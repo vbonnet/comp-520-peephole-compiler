@@ -117,7 +117,7 @@ T_JASMIN_INSTRUCTION
 
 T_INT : '-'?('0'..'9')+;
 T_NEWLINE : '\r'? '\n' ;
-T_VARIABLE : ('_'|'a'..'z'|'A'..'Z')+;
+T_VARIABLE : ('a'..'z'|'A'..'Z')(T_INT|'_'|'a'..'z'|'A'..'Z')*;
 
 /* IGNORED TOKENS */
 
