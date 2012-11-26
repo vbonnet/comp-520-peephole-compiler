@@ -356,7 +356,8 @@ module Peephole
 
         if created
           if stmt_count > 1
-            string << ind << 'statement_' << (stmt_count - 1).to_s << '->next = statement_' << stmt_count.to_s
+            prev_stmt = "#{ind}statement_#{(stmt_count - 1).to_s}"
+            string << "#{prev_stmt}->next = statement_#{stmt_count.to_s};\n"
           end
           stmt_count += 1
         end
